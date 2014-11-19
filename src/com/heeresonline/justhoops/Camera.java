@@ -69,7 +69,7 @@ public class Camera {
  
     return screen;
   }
- 
+
   public Vec2 screenToWorld(float x, float y) {
     return screenToWorld(new Vec2(x,y));
   }

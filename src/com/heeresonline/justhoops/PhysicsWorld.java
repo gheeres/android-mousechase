@@ -3,6 +3,7 @@ package com.heeresonline.justhoops;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.jbox2d.collision.AABB;
 import org.jbox2d.collision.shapes.EdgeShape;
@@ -87,7 +88,7 @@ public class PhysicsWorld {
   
   public void create(Vec2 gravity) 
   {
-    bodies = new ArrayList<Body>();
+    bodies = new CopyOnWriteArrayList<Body>();
 
     world = new World(gravity);
     world.setAllowSleep(true);
@@ -182,16 +183,18 @@ public class PhysicsWorld {
     ballDef.type = BodyType.DYNAMIC;
     ballDef.position.set(x, y);
     Body ballBody = world.createBody(ballDef);
-    PolygonShape ballBox = new PolygonShape();
-    ballBox.setAsBox(width, height);
-    FixtureDef ballFixtureDef = new FixtureDef();
-    ballFixtureDef.shape = ballBox;
-    ballFixtureDef.density = 1.0f;
-    ballFixtureDef.friction = 0.3f;
-    ballFixtureDef.restitution = 0.8f;
-    ballBody.createFixture(ballFixtureDef);
-    synchronized(bodies) {
-      bodies.add(ballBody);
+    if (ballBody != null) {
+      PolygonShape ballBox = new PolygonShape();
+      ballBox.setAsBox(width/2f, height/2f);
+      FixtureDef ballFixtureDef = new FixtureDef();
+      ballFixtureDef.shape = ballBox;
+      ballFixtureDef.density = 1.0f;
+      ballFixtureDef.friction = 0.3f;
+      ballFixtureDef.restitution = 0.8f;
+      ballBody.createFixture(ballFixtureDef);
+      synchronized(bodies) {
+        bodies.add(ballBody);
+      }
     }
   }
   
@@ -199,25 +202,28 @@ public class PhysicsWorld {
     world.step(1f/60f, 6, 2);
 
     int index = 0;
-    Iterable<Body> bodies = getBodies();
-    synchronized(bodies) {
-      for(Body body : getBodies()) {
-        Vec2 position = body.getPosition();
-        float angle = body.getAngle();
-        Log.d(TAG, String.format("[%d] x: %4.2f, y: %4.2f, angle: %4.2f\n", 
-                                 index++, position.x, position.y, angle));
+    for(Iterator<Body> iterator = getBodies().iterator(); iterator.hasNext(); index++) {
+      Body body = iterator.next();
+      Vec2 position = body.getPosition();
+      float angle = body.getAngle();
+      if ((position.x < (minX - ((maxX - minX)*2))) || (position.x > (maxX + ((maxX - minX)*2)))) {
+        Log.d(TAG, String.format("[%d] Removing body at x: %4.2f, y: %4.2f, angle: %4.2f\n", 
+                                 index, position.x, position.y, angle));
+        bodies.remove(index);
       }
+      else Log.v(TAG, String.format("[%d] x: %4.2f, y: %4.2f, angle: %4.2f\n", 
+                                    index, position.x, position.y, angle));
     }
   }
 
   public void dispose() {
     world.destroyBody(ground);
     //world.destroyBody(box);
-    Iterable<Body> bodies = getBodies();
-    synchronized(bodies) {
-      for(Body body: getBodies()) {
-        world.destroyBody(body);
-      }
+
+    for(Iterator<Body> iterator = getBodies().iterator(); iterator.hasNext();) {
+      Body body = iterator.next();
+      iterator.remove();
+      world.destroyBody(body);
     }
   }
   
@@ -234,7 +240,7 @@ public class PhysicsWorld {
   }
 
   public Iterable<Body> getBodies() {
-    if (bodies == null) bodies = new ArrayList<Body>();
+    if (bodies == null) bodies = new CopyOnWriteArrayList<Body>();
     return(bodies);
   }
 }
