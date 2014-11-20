@@ -2,11 +2,13 @@ package com.heeresonline.justhoops;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
 public class MainActivity extends Activity {
-  private RenderView view;
+  private IView view;
+  //private RenderView view;
   
   /* (non-Javadoc)
    * @see android.app.Activity#onCreate(android.os.Bundle)
@@ -19,7 +21,8 @@ public class MainActivity extends Activity {
     super.onCreate(savedInstanceState);
 
     view = new RenderView(this);
-    setContentView(view);
+    //view = new GLRenderView(this);
+    setContentView((View) view);
   }
 
   /* (non-Javadoc)
