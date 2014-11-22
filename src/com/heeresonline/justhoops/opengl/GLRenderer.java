@@ -98,7 +98,7 @@ public class GLRenderer implements Renderer, IView {
     shapes.add(new Rectangle(600, 600, 700, 700, GLShaderFactory.programs.get("solidColor")));
   }  
   
-  private void render(float[] matrix, float deltaTime) {
+  protected void render(float[] matrix, float deltaTime) {
     // clear Screen and Depth Buffer, we have set the clear color as black.
     GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
@@ -110,6 +110,15 @@ public class GLRenderer implements Renderer, IView {
     }
   }
   
+  public void move(float x, float y) {
+    for(Iterator<GLShape> iterator = shapes.iterator(); iterator.hasNext(); ) {
+      GLShape shape = iterator.next();
+      if ((shape != null) && (shape instanceof Rectangle)) {
+        ((Rectangle) shape).move(((Rectangle) shape).centerX() + x, ((Rectangle) shape).centerY() + y);
+      }
+    }
+  }
+  
   @Override
   public void resume() {
     lastTime = System.currentTimeMillis();
@@ -117,5 +126,21 @@ public class GLRenderer implements Renderer, IView {
 
   @Override
   public void pause() {
+  }
+  
+  /**
+   * Gets the screen width
+   * @return The width of screen
+   */
+  public float getWidth() {
+    return(screenWidth);
+  }
+
+  /**
+   * Gets the screen height
+   * @return The height of screen
+   */
+  public float getHeight() {
+    return(screenHeight);
   }
 }

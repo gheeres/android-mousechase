@@ -1,9 +1,10 @@
 package com.heeresonline.justhoops.opengl;
 
 import android.graphics.Rect;
+import android.util.Log;
 
 public class Rectangle extends GLShape {
-  public static final String TAG = "Square";
+  public static final String TAG = "Rectangle";
   
   protected float left;
   protected float right;
@@ -20,6 +21,7 @@ public class Rectangle extends GLShape {
   
   public Rectangle(float bottom, float left, float right, float top, int program) {
     super(getVertices(bottom, left, right, top), defaultIndices, program);
+    initialize(bottom, left, right, top);
   }
 
   public Rectangle(Rect rect, int program, GLTexture texture) {
@@ -28,6 +30,21 @@ public class Rectangle extends GLShape {
 
   public Rectangle(float bottom, float left, float right, float top, int program, GLTexture texture) {
     super(getVertices(bottom, left, right, top), defaultIndices, program, texture);
+    initialize(bottom, left, right, top);
+  }
+
+  /**
+   * Initialize the rectangle.
+   * @param bottom The bottom
+   * @param left The left
+   * @param right The right
+   * @param top The top
+   */
+  private void initialize(float bottom, float left, float right, float top) {
+    this.bottom = bottom;
+    this.left = left;
+    this.right = right;
+    this.top = top;
   }
   
   /**
@@ -64,17 +81,46 @@ public class Rectangle extends GLShape {
   }
   
   /**
+   * Gets the center X position.
+   * @return The center in the X coordinate space.
+   */
+  public float centerX() {
+    return(left - width() / 2);
+  }
+  
+  /**
+   * Gets the center Y position.
+   * @return The center in the Y coordinate space.
+   */
+  public float centerY() {
+    return(bottom + height() / 2);
+  }
+
+  /**
    * Moves the center of the item to the specified x and y coordinate.
    * @param x The x position.
    * @param y
    */
   public void move(float x, float y) {
-    float halfHeight = height() / 2;
-    float halfWidth = width() / 2;
+    float movementX = x - centerX();
+    float movementY = y - centerY();
+
+    float oldBottom = bottom;
+    float oldLeft = left;
+    float oldRight = right;
+    float oldTop = top;
+    float oldX = centerX();
+    float oldY = centerY();
     
-    vertices = getVertices((bottom + halfHeight) - y,
-                           (left + halfWidth) - x,
-                           (right + halfWidth) + x,
-                           (top + halfHeight) + y);      
+    bottom += movementY;
+    left += movementX;
+    right += movementX;
+    top += movementY;
+    vertices = getVertices(bottom, left, right, top);
+    
+    Log.v(TAG, String.format("Moving shape from %5.2f,%5.2f to %5.2f,%5.2f. Vertex change from (%5.2f,%5.2f,%5.2f,%5.2f) to (%5.2f,%5.2f,%5.2f,%5.2f).", 
+                             oldX, oldY, x, y,
+                             oldBottom, oldLeft, oldRight, oldTop,
+                             bottom, left, right, top));
   }
 }
