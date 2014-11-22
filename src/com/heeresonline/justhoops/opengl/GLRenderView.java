@@ -1,7 +1,5 @@
 package com.heeresonline.justhoops.opengl;
 
-import ri.blog.opengl002.riGraphicTools;
-
 import com.heeresonline.justhoops.IView;
 
 import android.content.Context;

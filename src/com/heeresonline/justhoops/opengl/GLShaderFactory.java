@@ -14,7 +14,33 @@ import android.util.Log;
 public class GLShaderFactory {
   public static final String TAG = "GLShaderFactory";
   
-  public static final Map<String, Integer> shaders = new HashMap<String, Integer>();
+  //public static final Map<String, Integer> shaders = new HashMap<String, Integer>();
+  public static final Map<String, Integer> programs = new HashMap<String, Integer>();
+
+  /**
+   * Attach and link the shaders to the OpenGL program.
+   * @param name The name of the shader.
+   * @param shaders The array of shaders to attach and link.
+   * @return The id of the OpenGL program.
+   */
+  public static int addProgram(String name, int[] shaders) {
+    // create empty OpenGL ES Program
+    int program = GLES20.glCreateProgram();             
+    for(int index = 0, length = shaders.length; index < length; index++) {
+      // add the vertex shader to program
+      GLES20.glAttachShader(program, shaders[index]);
+      Log.v(TAG, String.format("Attaching %d/%d shaders %d to program %s (%d).", 
+                               index+1, length, shaders[index], name, program));
+      checkGlError("glLinkProgram");
+    }
+    // creates OpenGL ES program executables
+    GLES20.glLinkProgram(program);
+    checkGlError("glLinkProgram");
+    
+    programs.put(name, program);
+    Log.d(TAG, String.format("Created shader program (%d) as %s.", program, name));
+    return(program);
+  }
   
   /**
   * Loads the specified shader from the raw resource id.

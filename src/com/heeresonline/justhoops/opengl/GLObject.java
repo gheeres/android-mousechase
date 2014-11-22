@@ -9,8 +9,7 @@ import java.nio.ShortBuffer;
  * A base GLObject class for common functionality.
  */
 abstract class GLObject {
-  protected float[] vertices;
-  protected short[] indices;
+  public static final String TAG = "GLObject";
   
   protected ShortBuffer getShortBuffer(short[] array, int position) {
     ByteBuffer byteBuffer = ByteBuffer.allocateDirect(array.length * 2);
@@ -39,14 +38,4 @@ abstract class GLObject {
   protected FloatBuffer getFloatBuffer(float[] array) {
     return(getFloatBuffer(array, 0));
   }
-  
-  public FloatBuffer getVertexBuffer() {
-    return(getFloatBuffer(vertices));
-  }
-
-  public ShortBuffer getDrawListBuffer() {
-    return(getShortBuffer(indices));
-  }
-  
-  //public abstract void draw(float[] matrix);
 }
