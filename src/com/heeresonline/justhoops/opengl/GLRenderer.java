@@ -92,30 +92,10 @@ public class GLRenderer implements Renderer, IView {
     });
     
     // Set our shader programm
-    shapes.add(new Square(new float[] {
-      440.0f, 700f, 0.0f,
-      440.0f, 600f, 0.0f,
-      600f, 600f, 0.0f,
-      600f, 700f, 0.0f,
-    }, GLShaderFactory.programs.get("texture2D"), new GLTexture(context.getAssets(), "cube.png")));
-    shapes.add(new Square(new float[] {
-      10.0f, 200f, 0.0f,
-      10.0f, 100f, 0.0f,
-      100f, 100f, 0.0f,
-      100f, 200f, 0.0f,
-    }, GLShaderFactory.programs.get("texture2D"), new GLTexture(context.getResources(), R.drawable.ic_launcher)));
-    shapes.add(new Square(new float[] { 
-      100.0f, 400f, 0.0f,
-      100.0f, 200f, 0.0f,
-      200f, 200f, 0.0f,
-      200f, 400f, 0.0f
-    }, GLShaderFactory.programs.get("solidColor")));
-    shapes.add(new Square(new float[] { 
-      300.0f, 600f, 0.0f,
-      300.0f, 400f, 0.0f,
-      400f, 400f, 0.0f,
-      400f, 600f, 0.0f
-    }, GLShaderFactory.programs.get("solidColor")));
+    shapes.add(new Rectangle(100, 300, 400, 200, GLShaderFactory.programs.get("texture2D"), new GLTexture(context.getAssets(), "cube.png")));
+    shapes.add(new Rectangle(650, 850, 950, 750, GLShaderFactory.programs.get("texture2D"), new GLTexture(context.getResources(), R.drawable.ic_launcher)));
+    shapes.add(new Rectangle(300, 100, 200, 400, GLShaderFactory.programs.get("solidColor")));
+    shapes.add(new Rectangle(600, 600, 700, 700, GLShaderFactory.programs.get("solidColor")));
   }  
   
   private void render(float[] matrix, float deltaTime) {
