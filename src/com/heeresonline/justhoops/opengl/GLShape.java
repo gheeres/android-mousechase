@@ -59,6 +59,7 @@ public class GLShape extends GLObject {
     GLES20.glUniform1i(s_texture, 0);
 
     // Draw 
+    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture.id);
     GLES20.glDrawElements(GLES20.GL_TRIANGLES, indices.length, GLES20.GL_UNSIGNED_SHORT, getIndexBuffer());
 
     // Disable vertex array

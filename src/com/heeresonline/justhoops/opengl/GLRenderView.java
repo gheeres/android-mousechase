@@ -62,13 +62,9 @@ public class GLRenderView extends GLSurfaceView implements IView {
     switch(action) {
       case MotionEvent.ACTION_DOWN:
       case MotionEvent.ACTION_POINTER_DOWN:
+        
         // [pointerId] = new PointF(event.getX(pointerIndex), event.getY(pointerIndex));
-        if (event.getX(pointerIndex) < centerX) {
-          renderer.move(-10, 0);
-        }
-        else {
-          renderer.move(10, 0);
-        }
+        renderer.move((event.getX(pointerIndex) < centerX) ? -10 : 10, (event.getY(pointerIndex) > centerY) ? -10 : 10);
         break;
       
       case MotionEvent.ACTION_CANCEL:
@@ -77,11 +73,9 @@ public class GLRenderView extends GLSurfaceView implements IView {
 
         break;
       case MotionEvent.ACTION_MOVE:
-//        for(int index = 0, events = event.getPointerCount(); index < events; index++) {
-//          pointerId = event.getPointerId(index);
-//          points[pointerId].x = event.getX(index);
-//          points[pointerId].y = event.getY(index);
-//        }
+        for(int index = 0, events = event.getPointerCount(); index < events; index++) {
+          renderer.move((event.getX(index) < centerX) ? -10 : 10, (event.getY(index) > centerY) ? -10 : 10);
+        }
         break;
       default:
         return(false);
