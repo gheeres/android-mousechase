@@ -2,6 +2,7 @@ package com.heeresonline.justhoops.opengl;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -69,13 +70,17 @@ public class GLRenderer implements Renderer, IView {
     Matrix.setLookAtM(viewMatrix, 0, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
     // Calculate the projection and view transformation
     Matrix.multiplyMM(projectionAndViewMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
+
+    generateRandomShapes(30);
   }
 
   @Override
   public void onSurfaceCreated(GL10 unused, EGLConfig config) {
     // Set the clear color to black
     GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1); 
-
+    GLES20.glEnable(GLES20.GL_BLEND);
+    GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+    
     // Register our shaders
     Resources res = context.getResources();
     GLShaderFactory.addProgram("solidColor", new int[] {
@@ -91,13 +96,27 @@ public class GLRenderer implements Renderer, IView {
       GLShaderFactory.loadShader(GLES20.GL_FRAGMENT_SHADER, res, R.raw.image_fs),
     });
     
-    // Set our shader programm
-    shapes.add(new Rectangle(100, 300, 400, 200, GLShaderFactory.programs.get("texture2D"), new GLTexture(context.getAssets(), "cube.png")));
-    shapes.add(new Rectangle(650, 850, 950, 750, GLShaderFactory.programs.get("texture2D"), new GLTexture(context.getResources(), R.drawable.ic_launcher)));
-    shapes.add(new Rectangle(300, 100, 200, 400, GLShaderFactory.programs.get("solidColor")));
-    shapes.add(new Rectangle(600, 600, 700, 700, GLShaderFactory.programs.get("solidColor")));
+    // Load our textures
+    GLTextureFactory.addTexture("atlas", context.getAssets(), "textureatlas.png", new float[] {
+      
+    });
+    GLTextureFactory.addTexture("cube", context.getAssets(), "cube.png");
+    GLTextureFactory.addTexture("icon", context.getResources(), R.drawable.ic_launcher);
   }  
   
+  protected void generateRandomShapes(int count) {
+    Random random = new Random();
+    int program = GLShaderFactory.programs.get("texture2D");
+    GLTexture[] textures = GLTextureFactory.textures.values().toArray(new GLTexture[0]);
+    
+    for(int index = 0; index < count; index++) {
+      float bottom = random.nextFloat() * screenHeight;
+      float left = random.nextFloat() * screenWidth;
+      shapes.add(new Rectangle(bottom, left, left + 100f, bottom + 100f,
+                 program, textures[random.nextInt(textures.length)]));
+    }
+  }
+
   protected void render(float[] matrix, float deltaTime) {
     // clear Screen and Depth Buffer, we have set the clear color as black.
     GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
