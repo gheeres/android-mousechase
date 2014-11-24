@@ -25,6 +25,53 @@ abstract class GLObject {
     return(getShortBuffer(array, 0));
   }
 
+  /**
+   * Gets a 3x3 matrix from the 4x4 matrix.
+   * @param matrix4 The 4x4 matrix to retrieve.
+   * @return A 3x3 matrix.
+   */
+  protected float[] getMatrix3(float[] matrix4) {
+    float[] result = new float[matrix4.length - (matrix4.length / 4)];
+    for(int index = 0, length = matrix4.length; index < length; index += 4) {
+      int resultIndex = index-(index/4);
+      result[resultIndex]   = matrix4[index];
+      result[resultIndex+1] = matrix4[index+1];
+      result[resultIndex+2] = matrix4[index+2];
+    }
+    return(result);
+  }
+
+  /**
+   * Gets a 3x3 matrix from the 2x2 matrix setting the z access.
+   * @param matrix2 The 2x2 matrix to use as a source.
+   * @return A 3x3 matrix.
+   */
+  protected float[] getMatrix3(float[] matrix2, float z) {
+    float[] result = new float[matrix2.length + (matrix2.length / 2)];
+    for(int index = 0, length = matrix2.length; index < length; index+=2) {
+      int resultIndex = index + (index / 2);
+      result[resultIndex] = matrix2[index];
+      result[resultIndex+1] = matrix2[index+1];
+      result[resultIndex+2] = z;
+    }
+    return(result);
+  }
+
+  /**
+   * Gets a 2x2 matrix from the 3x3 matrix.
+   * @param matrix3 The 2x2 matrix to retrieve.
+   * @return A 2x2 matrix.
+   */
+  protected float[] getMatrix2(float[] matrix3) {
+    float[] result = new float[matrix3.length - (matrix3.length / 3)];
+    for(int index = 0, length = matrix3.length; index < length; index += 3) {
+      int resultIndex = index-(index/3);
+      result[resultIndex]   = matrix3[index];
+      result[resultIndex+1] = matrix3[index+1];
+    }
+    return(result);
+  }
+
   protected FloatBuffer getFloatBuffer(float[] array, int position) {
     ByteBuffer byteBuffer = ByteBuffer.allocateDirect(array.length * 4);
     byteBuffer.order(ByteOrder.nativeOrder());
