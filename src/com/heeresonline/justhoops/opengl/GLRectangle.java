@@ -154,6 +154,7 @@ public class GLRectangle extends GLShape {
     this.angle = angle;
   }
   
+  @Override
   public FloatBuffer getVertexBuffer() {
     float[] vertices2d = getMatrix2(getVertices(origin.x, origin.y, width, height));
 
