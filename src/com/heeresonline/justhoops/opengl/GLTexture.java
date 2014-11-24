@@ -37,4 +37,12 @@ class GLTexture extends GLObject {
   public FloatBuffer getUvsBuffer() {
     return(getFloatBuffer(uvs, 0));
   }
+  
+  public GLTexture clone() {
+    return(new GLTexture(id, uvs));
+  }
+
+  public GLTexture clone(float[] uvs) {
+    return(new GLTexture(id, uvs));
+  }
 }

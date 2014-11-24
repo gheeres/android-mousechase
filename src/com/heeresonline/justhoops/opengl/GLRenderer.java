@@ -97,9 +97,7 @@ public class GLRenderer implements Renderer, IView {
     });
     
     // Load our textures
-    GLTextureFactory.addTexture("atlas", context.getAssets(), "textureatlas.png", new float[] {
-      
-    });
+    GLTextureFactory.addTexture("atlas", context.getAssets(), "textureatlas.png");
     GLTextureFactory.addTexture("cube", context.getAssets(), "cube.png");
     GLTextureFactory.addTexture("icon", context.getResources(), R.drawable.ic_launcher);
   }  
@@ -109,11 +107,42 @@ public class GLRenderer implements Renderer, IView {
     int program = GLShaderFactory.programs.get("texture2D");
     GLTexture[] textures = GLTextureFactory.textures.values().toArray(new GLTexture[0]);
     
+    float[][] atlas = new float[][] {
+        new float[] {
+            0.0f, 0.0f,
+            0.5f, 0.0f,
+            0.5f, 0.5f,
+            0.0f, 0.5f  
+          },
+          new float[] {
+            0.5f, 0.0f,
+            1.0f, 0.0f,
+            1.0f, 0.5f,
+            0.5f, 0.5f  
+          },
+          new float[] {
+            0.5f, 0.5f,
+            1.0f, 0.5f,
+            1.0f, 1.0f,
+            0.5f, 1.0f  
+          },
+          new float[] {
+            0.0f, 0.5f,
+            0.5f, 0.5f,
+            0.5f, 1.0f,
+            0.0f, 1.0f  
+          },
+    };
     for(int index = 0; index < count; index++) {
       float bottom = random.nextFloat() * screenHeight;
       float left = random.nextFloat() * screenWidth;
+      GLTexture texture = textures[random.nextInt(textures.length)];
+      if (texture.id == 1) {
+        texture = texture.clone(atlas[random.nextInt(atlas.length)]);
+      }
+      
       shapes.add(new Rectangle(bottom, left, left + 100f, bottom + 100f,
-                 program, textures[random.nextInt(textures.length)]));
+                 program, texture));
     }
   }
 
