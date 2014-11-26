@@ -1,5 +1,6 @@
 package com.heeresonline.justhoops.opengl;
 
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -8,10 +9,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import com.android.opengl.GLText;
 import com.heeresonline.justhoops.IView;
 import com.heeresonline.justhoops.R;
 
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView.Renderer;
@@ -21,10 +24,14 @@ public class GLRenderer implements Renderer, IView {
   static final String TAG = "GLRenderer";
   private final Context context;
 
+  private GLText glText;
+  private GLText glDebugText;
+  
   private final float[] projectionMatrix = new float[16];
   private final float[] viewMatrix = new float[16];
   private final float[] projectionAndViewMatrix = new float[16];
 
+  private float time;
   private long lastTime;
   private float screenWidth = 1024;
   private float screenHeight = 768;
@@ -47,23 +54,23 @@ public class GLRenderer implements Renderer, IView {
     }
   }
   
-  private void clearMatrix() {
-    // Clear our matrices
-    for(int index = 0; index < 16; index++) {
-      projectionMatrix[index] = 0.0f;
-      viewMatrix[index] = 0.0f;
-      projectionAndViewMatrix[index] = 0.0f;
-    }
-  }
-  
   @Override
-  public void onSurfaceChanged(GL10 gl, int width, int height) {
+  public void onSurfaceChanged(GL10 unused, int width, int height) {
     screenWidth = width;
     screenHeight = height;
     
     GLES20.glViewport(0, 0, (int)screenWidth, (int)screenHeight);
     clearMatrix();
       
+    // Create the GLText
+    // Load the font from file (set size + padding), creates the texture
+    // NOTE: after a successful call to this the font is ready for rendering!
+    AssetManager assets = context.getAssets();
+    glDebugText = new GLText(assets);
+    glDebugText.load("Roboto-Regular.ttf", (int) (screenHeight * 0.015f), 2, 2);  // Create Font (Height: 24 Pixels / X+Y Padding 2 Pixels)
+    glText = new GLText(assets);
+    glText.load("QuartzMS.ttf", (int) (screenHeight * 0.05f), 8, 8);  // Create Font (Height: 72 Pixels / X+Y Padding 2 Pixels)
+    
     // Setup our screen width and height for normal sprite translation.
     Matrix.orthoM(projectionMatrix, 0, 0f, screenWidth, 0.0f, screenHeight, 0, 50);
     // Set the camera position (View matrix)
@@ -71,7 +78,7 @@ public class GLRenderer implements Renderer, IView {
     // Calculate the projection and view transformation
     Matrix.multiplyMM(projectionAndViewMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
 
-    generateRandomShapes(30);
+    generateRandomShapes(100);
   }
 
   @Override
@@ -101,7 +108,19 @@ public class GLRenderer implements Renderer, IView {
     GLTextureFactory.addTexture("cube", context.getAssets(), "cube.png");
     GLTextureFactory.addTexture("icon", context.getResources(), R.drawable.ic_launcher);
   }  
-  
+
+  /**
+   * Clears the display, model and projection matrixes.
+   */
+  private void clearMatrix() {
+    // Clear our matrices
+    for(int index = 0; index < 16; index++) {
+      projectionMatrix[index] = 0.0f;
+      viewMatrix[index] = 0.0f;
+      projectionAndViewMatrix[index] = 0.0f;
+    }
+  }
+
   protected void generateRandomShapes(int count) {
     Random random = new Random();
     int program = GLShaderFactory.programs.get("texture2D");
@@ -159,6 +178,26 @@ public class GLRenderer implements Renderer, IView {
         shape.draw(matrix);
       }
     }
+    
+    String date = new Date().toString();
+    glText.begin(1.0f, 1.0f, 1.0f, 1.0f, matrix); 
+    glText.drawC(new Date().toString(), screenWidth/2f, screenHeight/2f, 0);
+    glText.end();
+
+    renderFPS(matrix, deltaTime / 1000);
+  }
+  
+  /**
+   * Render the frames per second to the screen.
+   * @param matrix The matrix to use for rendering.
+   * @param deltaTime The time in seconds since the last update.
+   */
+  protected void renderFPS(float[] matrix, float deltaTime) {
+    time = ((time == 0) ? 1 : time) * 0.9f + deltaTime * 0.1f; // Smooth time / fps
+    String statistics = String.format("fps: %8.2f [delta: %8.6f]", 1/time, deltaTime);
+    glDebugText.begin(1.0f, 1.0f, 1.0f, 1.0f, matrix); 
+    glDebugText.draw(statistics, 0.0f, 0.0f, 0.0f);
+    glDebugText.end();
   }
   
   public void move(float x, float y) {
