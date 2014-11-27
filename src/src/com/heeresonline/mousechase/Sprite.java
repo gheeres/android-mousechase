@@ -1,4 +1,4 @@
-package com.heeresonline.justhoops;
+package com.heeresonline.mousechase;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;

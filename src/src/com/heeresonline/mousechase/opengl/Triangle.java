@@ -1,4 +1,4 @@
-package com.heeresonline.justhoops.opengl;
+package com.heeresonline.mousechase.opengl;
 
 /**
  * Represents a Triangle shape in OpenGL

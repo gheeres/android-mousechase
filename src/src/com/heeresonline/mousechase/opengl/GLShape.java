@@ -1,4 +1,4 @@
-package com.heeresonline.justhoops.opengl;
+package com.heeresonline.mousechase.opengl;
 
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;

@@ -1,4 +1,4 @@
-package com.heeresonline.justhoops;
+package com.heeresonline.mousechase;
 
 import java.io.IOException;
 import java.io.InputStream;

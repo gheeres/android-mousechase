@@ -1,4 +1,4 @@
-package com.heeresonline.justhoops.opengl;
+package com.heeresonline.mousechase.opengl;
 
 import java.util.Date;
 import java.util.Iterator;
@@ -10,8 +10,8 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import com.android.opengl.GLText;
-import com.heeresonline.justhoops.IView;
-import com.heeresonline.justhoops.R;
+import com.heeresonline.mousechase.R;
+import com.heeresonline.mousechase.IView;
 
 import android.content.Context;
 import android.content.res.AssetManager;

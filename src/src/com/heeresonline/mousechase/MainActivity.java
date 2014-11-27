@@ -1,6 +1,6 @@
-package com.heeresonline.justhoops;
+package com.heeresonline.mousechase;
 
-import com.heeresonline.justhoops.opengl.GLRenderView;
+import com.heeresonline.mousechase.opengl.GLRenderView;
 
 import android.app.Activity;
 import android.os.Bundle;

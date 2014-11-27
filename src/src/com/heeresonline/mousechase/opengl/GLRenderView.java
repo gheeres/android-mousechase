@@ -1,6 +1,6 @@
-package com.heeresonline.justhoops.opengl;
+package com.heeresonline.mousechase.opengl;
 
-import com.heeresonline.justhoops.IView;
+import com.heeresonline.mousechase.IView;
 
 import android.content.Context;
 import android.graphics.PointF;
