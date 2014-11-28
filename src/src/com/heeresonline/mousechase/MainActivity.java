@@ -1,7 +1,5 @@
 package com.heeresonline.mousechase;
 
-import com.heeresonline.mousechase.opengl.GLRenderView;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
@@ -11,8 +9,7 @@ import android.view.WindowManager;
 public class MainActivity extends Activity {
   private static final String TAG = "MainActivity";
   
-  private IView view;
-  //private RenderView view;
+  private GLRenderView view;
   
   /* (non-Javadoc)
    * @see android.app.Activity#onCreate(android.os.Bundle)
@@ -35,7 +32,7 @@ public class MainActivity extends Activity {
   @Override
   protected void onResume() {
     super.onResume();
-    view.resume();
+    view.onResume();
   }
 
   /* (non-Javadoc)
@@ -44,6 +41,6 @@ public class MainActivity extends Activity {
   @Override
   protected void onPause() {
     super.onPause();
-    view.pause();
+    view.onPause();
   }
 }

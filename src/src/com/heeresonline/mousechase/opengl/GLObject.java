@@ -11,6 +11,12 @@ import java.nio.ShortBuffer;
 abstract class GLObject {
   public static final String TAG = "GLObject";
   
+  /**
+   * Get's a ShortBuffer from the specified array.
+   * @param array The array to convert
+   * @param position The initial position of the buffer.
+   * @return A ShortBuffer
+   */
   protected ShortBuffer getShortBuffer(short[] array, int position) {
     ByteBuffer byteBuffer = ByteBuffer.allocateDirect(array.length * 2);
     byteBuffer.order(ByteOrder.nativeOrder());
@@ -21,6 +27,12 @@ abstract class GLObject {
     return(buffer);
   }
   
+  /**
+   * Get's a ShortBuffer from the specified array and initialized the
+   * position to the first item.
+   * @param array The array to convert
+   * @return A ShortBuffer
+   */
   protected ShortBuffer getShortBuffer(short[] array) {
     return(getShortBuffer(array, 0));
   }
@@ -72,6 +84,12 @@ abstract class GLObject {
     return(result);
   }
 
+  /**
+   * Converts the specified array into a FloatBuffer
+   * @param array The array to convert.
+   * @param position The position to set the initial buffer.
+   * @return A FloatBuffer
+   */
   protected FloatBuffer getFloatBuffer(float[] array, int position) {
     ByteBuffer byteBuffer = ByteBuffer.allocateDirect(array.length * 4);
     byteBuffer.order(ByteOrder.nativeOrder());
@@ -82,6 +100,12 @@ abstract class GLObject {
     return(buffer);
   }
   
+  /**
+   * Converts the specified array into a FloatBuffer and sets the position 
+   * to the start of the buffer.
+   * @param array The array to convert.
+   * @return A FloatBuffer
+   */
   protected FloatBuffer getFloatBuffer(float[] array) {
     return(getFloatBuffer(array, 0));
   }

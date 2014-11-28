@@ -1,54 +1,53 @@
-package com.heeresonline.mousechase.opengl;
+package com.heeresonline.mousechase;
 
-import com.heeresonline.mousechase.IView;
+import com.heeresonline.mousechase.opengl.GLRenderer;
 
 import android.content.Context;
-import android.graphics.PointF;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
 import android.view.MotionEvent;
 
-public class GLRenderView extends GLSurfaceView implements IView {
+public class GLRenderView extends GLSurfaceView {
   private static final String TAG = "GLRenderView";
   protected GLRenderer renderer;
+  protected World world;
+  protected Thread gameLoop;
   
   public GLRenderView(Context context) {
     super(context);
     
+    Log.d(TAG, "Creating the game world.");
+    world = new World();
+    gameLoop = new Thread(world);
+
     Log.d(TAG, "Setting OpenGL to version 2.0.");
     setEGLContextClientVersion(2);
 
     Log.d(TAG, "Creating renderer.");
-    renderer = new GLRenderer(context);
+    renderer = new GLRenderer(context, world);
     setRenderer(renderer);
-
+    
     setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
   }
   
   @Override
   public void onPause() {
     super.onPause();
-    pause();
+
+    Log.v(TAG, "onPause");
+    renderer.pause();
+    world.pause();
   }
 
   @Override
   public void onResume() {
     super.onResume();
-    resume();
+
+    Log.v(TAG, "onResume");
+    renderer.resume();
+    gameLoop.start();
   }
 
-  @Override
-  public void resume() {
-    Log.d(TAG, "Resume");
-    ((IView) renderer).resume();
-  }
-
-  @Override
-  public void pause() {
-    Log.d(TAG, "Pause");
-    ((IView) renderer).pause();
-  }
-  
   @Override
   public boolean onTouchEvent(MotionEvent event) {
 
@@ -62,9 +61,8 @@ public class GLRenderView extends GLSurfaceView implements IView {
     switch(action) {
       case MotionEvent.ACTION_DOWN:
       case MotionEvent.ACTION_POINTER_DOWN:
-        
         // [pointerId] = new PointF(event.getX(pointerIndex), event.getY(pointerIndex));
-        renderer.move((event.getX(pointerIndex) < centerX) ? -10 : 10, (event.getY(pointerIndex) > centerY) ? -10 : 10);
+        //renderer.move((event.getX(pointerIndex) < centerX) ? -10 : 10, (event.getY(pointerIndex) > centerY) ? -10 : 10);
         break;
       
       case MotionEvent.ACTION_CANCEL:
@@ -74,7 +72,7 @@ public class GLRenderView extends GLSurfaceView implements IView {
         break;
       case MotionEvent.ACTION_MOVE:
         for(int index = 0, events = event.getPointerCount(); index < events; index++) {
-          renderer.move((event.getX(index) < centerX) ? -10 : 10, (event.getY(index) > centerY) ? -10 : 10);
+          //renderer.move((event.getX(index) < centerX) ? -10 : 10, (event.getY(index) > centerY) ? -10 : 10);
         }
         break;
       default:

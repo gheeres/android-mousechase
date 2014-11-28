@@ -11,7 +11,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 import com.android.opengl.GLText;
 import com.heeresonline.mousechase.R;
-import com.heeresonline.mousechase.IView;
+import com.heeresonline.mousechase.World;
 
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -20,9 +20,10 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView.Renderer;
 import android.opengl.Matrix;
 
-public class GLRenderer implements Renderer, IView {
+public class GLRenderer implements Renderer {
   static final String TAG = "GLRenderer";
   private final Context context;
+  private World world;
 
   private GLText glText;
   private GLText glDebugText;
@@ -38,9 +39,10 @@ public class GLRenderer implements Renderer, IView {
   
   private List<GLShape> shapes = new CopyOnWriteArrayList<GLShape>();
   
-  public GLRenderer(Context context)
+  public GLRenderer(Context context, World world)
   {
     this.context = context;
+    this.world = world;
     lastTime = System.currentTimeMillis();
   }  
   
@@ -59,6 +61,8 @@ public class GLRenderer implements Renderer, IView {
     screenWidth = width;
     screenHeight = height;
     
+    world.setHeight((int) screenHeight);
+    world.setWidth((int) screenWidth);
     GLES20.glViewport(0, 0, (int)screenWidth, (int)screenHeight);
     clearMatrix();
       
@@ -209,12 +213,10 @@ public class GLRenderer implements Renderer, IView {
     }
   }
   
-  @Override
   public void resume() {
     lastTime = System.currentTimeMillis();
   }
 
-  @Override
   public void pause() {
   }
   
