@@ -11,14 +11,12 @@ public class GLRenderView extends GLSurfaceView {
   private static final String TAG = "GLRenderView";
   protected GLRenderer renderer;
   protected World world;
-  protected Thread gameLoop;
   
   public GLRenderView(Context context) {
     super(context);
     
     Log.d(TAG, "Creating the game world.");
     world = new World();
-    gameLoop = new Thread(world);
 
     Log.d(TAG, "Setting OpenGL to version 2.0.");
     setEGLContextClientVersion(2);
@@ -45,7 +43,7 @@ public class GLRenderView extends GLSurfaceView {
 
     Log.v(TAG, "onResume");
     renderer.resume();
-    gameLoop.start();
+    world.resume();
   }
 
   @Override
@@ -63,16 +61,18 @@ public class GLRenderView extends GLSurfaceView {
       case MotionEvent.ACTION_POINTER_DOWN:
         // [pointerId] = new PointF(event.getX(pointerIndex), event.getY(pointerIndex));
         //renderer.move((event.getX(pointerIndex) < centerX) ? -10 : 10, (event.getY(pointerIndex) > centerY) ? -10 : 10);
+        world.moveCatTo(event.getX(pointerIndex), renderer.getHeight() - event.getY(pointerIndex));
         break;
       
       case MotionEvent.ACTION_CANCEL:
       case MotionEvent.ACTION_UP:
       case MotionEvent.ACTION_POINTER_UP:
-
+          //world.stopCat();
         break;
       case MotionEvent.ACTION_MOVE:
         for(int index = 0, events = event.getPointerCount(); index < events; index++) {
           //renderer.move((event.getX(index) < centerX) ? -10 : 10, (event.getY(index) > centerY) ? -10 : 10);
+          world.moveCatTo(event.getX(pointerIndex),  renderer.getHeight() - event.getY(pointerIndex));
         }
         break;
       default:

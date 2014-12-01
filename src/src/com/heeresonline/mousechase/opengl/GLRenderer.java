@@ -10,8 +10,11 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import com.android.opengl.GLText;
+import com.heeresonline.mousechase.Cat;
+import com.heeresonline.mousechase.GameObject;
 import com.heeresonline.mousechase.R;
 import com.heeresonline.mousechase.World;
+import com.heeresonline.mousechase.World.WorldState;
 
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -19,6 +22,7 @@ import android.content.res.Resources;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView.Renderer;
 import android.opengl.Matrix;
+import android.util.Log;
 
 public class GLRenderer implements Renderer {
   static final String TAG = "GLRenderer";
@@ -82,7 +86,9 @@ public class GLRenderer implements Renderer {
     // Calculate the projection and view transformation
     Matrix.multiplyMM(projectionAndViewMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
 
-    generateRandomShapes(100);
+    //generateRandomShapes(100);
+    world.initialize();
+    world.start();
   }
 
   @Override
@@ -176,18 +182,41 @@ public class GLRenderer implements Renderer {
     // clear Screen and Depth Buffer, we have set the clear color as black.
     GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
-    for(Iterator<GLShape> iterator = shapes.iterator(); iterator.hasNext(); ) {
-      GLShape shape = iterator.next();
-      if (shape != null) {
-        shape.draw(matrix);
-      }
+    switch(world.getState()) {
+      case GAMEOVER:
+        glText.begin(1.0f, 1.0f, 1.0f, 1.0f, matrix); 
+        glText.drawC("GAME OVER", screenWidth/2f, screenHeight/2f, 0);
+        glText.end();
+      break;
+      
+      case RUNNING:
+        int program = GLShaderFactory.programs.get("texture2D");
+        GLTexture texture = GLTextureFactory.textures.get("icon");
+        for(Iterator<GameObject> iterator = world.getGameObjects().iterator(); iterator.hasNext(); ){
+          GameObject obj = iterator.next();
+          if (obj != null) {
+            if (obj instanceof Cat) texture = GLTextureFactory.textures.get("cube");
+            else texture = GLTextureFactory.textures.get("icon");
+    //Log.d(TAG, String.format("Creating GameObject at %5.2fx%5.2f. Screen size: %5.2fx%5.2f", obj.position.x, obj.position.y, screenWidth, screenHeight));
+            
+            GLRectangle rectangle = new GLRectangle(obj.position.x, obj.position.y, 35f, 35f, program, texture.clone());
+            rectangle.angle = obj.direction;
+            rectangle.draw(matrix);
+          }
+        }
+        
+        for(Iterator<GLShape> iterator = shapes.iterator(); iterator.hasNext(); ) {
+          GLShape shape = iterator.next();
+          if (shape != null) {
+            shape.draw(matrix);
+          }
+        }
+      break;
+      
+      default:
+      break;
     }
     
-    String date = new Date().toString();
-    glText.begin(1.0f, 1.0f, 1.0f, 1.0f, matrix); 
-    glText.drawC(new Date().toString(), screenWidth/2f, screenHeight/2f, 0);
-    glText.end();
-
     renderFPS(matrix, deltaTime / 1000);
   }
   

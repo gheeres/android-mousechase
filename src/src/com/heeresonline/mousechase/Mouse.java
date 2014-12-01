@@ -1,11 +1,16 @@
 package com.heeresonline.mousechase;
 
+import java.util.Random;
+
+import android.graphics.PointF;
 import android.util.Log;
 
 public class Mouse extends GameObject {
   public static final String TAG = "Mouse";
-
+  
   private GameObject target;
+  private PointF next = new PointF(); 
+  private float time = 0.0f;
   
   public Mouse(int id, float x, float y) {
     super(id, x, y);
@@ -27,19 +32,14 @@ public class Mouse extends GameObject {
   @Override
   public void step(float deltaTime) {
     if (target == null) return;
+    time += deltaTime;
 
-    if ((target.position.x != position.x) && 
-        (target.position.y != position.y)) {
-      float deltaX = target.position.x - position.x;
-      float deltaY = target.position.y - position.y;
-      float distance = (float) Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
-      deltaX /= distance;
-      deltaY /= distance;
-      
-      position.x += deltaX * speed;
-      position.y += deltaY * speed;
-      
-      direction = getDirectionTo(target.position.x, target.position.y);
+    if ((Math.abs(target.position.x - position.x) > POSITION_PRECISION) || 
+        (Math.abs(target.position.y - position.y) > POSITION_PRECISION)) {
+      getNextPosition(target.position.x, target.position.y, next);
+      position.x = next.x;
+      position.y = next.y;
+
       //Log.v(World.TAG, String.format("[%4d] Mouse move %3.1fx%3.1f (%3.3fx%3.3f) heading %3.2f to %3.1fx%3.1f...", 
       //                               id, position.x, position.y, deltaX, deltaY, direction, target.position.x, target.position.y));
     }

@@ -14,7 +14,7 @@ public class GLRectangle extends GLShape {
   };
   
   public final PointF origin = new PointF();
-  public final PointF scale = new PointF();
+  public final PointF scale = new PointF(1.0f, 1.0f);
   public float width;
   public float height;
   public float angle;
