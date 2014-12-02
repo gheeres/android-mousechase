@@ -16,7 +16,7 @@ public class GLRenderView extends GLSurfaceView {
     super(context);
     
     Log.d(TAG, "Creating the game world.");
-    world = new World();
+    world = new World(context);
 
     Log.d(TAG, "Setting OpenGL to version 2.0.");
     setEGLContextClientVersion(2);
@@ -47,31 +47,30 @@ public class GLRenderView extends GLSurfaceView {
   }
 
   @Override
+  public boolean performClick() {
+    return(super.performClick());
+  }
+  
+  @Override
   public boolean onTouchEvent(MotionEvent event) {
-
     int pointerIndex = event.getActionIndex();
-    int pointerId = event.getPointerId(pointerIndex);
+    //int pointerId = event.getPointerId(pointerIndex);
     int action = event.getActionMasked();
-    
-    float centerX = renderer.getWidth() / 2;
-    float centerY = renderer.getHeight() / 2;
     
     switch(action) {
       case MotionEvent.ACTION_DOWN:
       case MotionEvent.ACTION_POINTER_DOWN:
-        // [pointerId] = new PointF(event.getX(pointerIndex), event.getY(pointerIndex));
-        //renderer.move((event.getX(pointerIndex) < centerX) ? -10 : 10, (event.getY(pointerIndex) > centerY) ? -10 : 10);
         world.moveCatTo(event.getX(pointerIndex), renderer.getHeight() - event.getY(pointerIndex));
         break;
       
       case MotionEvent.ACTION_CANCEL:
       case MotionEvent.ACTION_UP:
       case MotionEvent.ACTION_POINTER_UP:
+          performClick();
           //world.stopCat();
         break;
       case MotionEvent.ACTION_MOVE:
         for(int index = 0, events = event.getPointerCount(); index < events; index++) {
-          //renderer.move((event.getX(index) < centerX) ? -10 : 10, (event.getY(index) > centerY) ? -10 : 10);
           world.moveCatTo(event.getX(pointerIndex),  renderer.getHeight() - event.getY(pointerIndex));
         }
         break;

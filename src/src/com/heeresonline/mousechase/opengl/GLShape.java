@@ -4,7 +4,6 @@ import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
 import android.opengl.GLES20;
-import android.opengl.Matrix;
 
 /**
  * A base GLObject class for common functionality.

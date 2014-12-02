@@ -41,7 +41,7 @@ public class Cat extends GameObject {
   public void step(float deltaTime) {
     if ((Math.abs(destination.x - position.x) > POSITION_PRECISION) || 
         (Math.abs(destination.y - position.y) > POSITION_PRECISION)) {
-      getNextPosition(destination.x, destination.y, next);
+      getNextPosition(deltaTime, destination.x, destination.y, next);
 
       position.x = next.x;
       position.y = next.y;

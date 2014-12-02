@@ -4,10 +4,9 @@ import java.nio.FloatBuffer;
 
 import android.graphics.Matrix;
 import android.graphics.PointF;
-import android.util.Log;
 
 public class GLRectangle extends GLShape {
-  public static final String TAG = "GLRectangle";
+  //public static final String TAG = "GLRectangle";
   
   protected static final short[] defaultIndices =  new short[] { 
     0, 1, 2, 0, 2, 3 

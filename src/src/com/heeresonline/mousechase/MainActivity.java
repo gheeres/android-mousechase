@@ -7,7 +7,7 @@ import android.view.Window;
 import android.view.WindowManager;
 
 public class MainActivity extends Activity {
-  private static final String TAG = "MainActivity";
+  //private static final String TAG = "MainActivity";
   
   private GLRenderView view;
   

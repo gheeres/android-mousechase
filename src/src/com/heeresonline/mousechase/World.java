@@ -1,17 +1,19 @@
 package com.heeresonline.mousechase;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.jbox2d.dynamics.Body;
-
-import android.graphics.Canvas;
+import android.content.Context;
+import android.content.res.AssetManager;
 import android.graphics.Point;
-import android.opengl.Matrix;
+import android.media.AudioManager;
+import android.media.SoundPool;
+import android.media.SoundPool.OnLoadCompleteListener;
 import android.util.Log;
 
 /**
@@ -23,21 +25,20 @@ public class World implements Runnable {
   private final static int DEFAULT_WIDTH = 1024;
   private final static int DEFAULT_HEIGHT = 768;
   
+  private final static int MAX_SOUND_STREAMS = 8;
+
   private final static int MAX_FPS = 40; //desired fps   
   private final static int MAX_FRAME_SKIPS = 5; // maximum number of frames to be skipped    
   private final static int FRAME_PERIOD = 1000 / MAX_FPS; // the frame period  
 
-  private final static int DISTANCE_PER_TICK = 10; // The number of units (pixels) to move per tick.
   private final static int MOUSE_INTERVAL = 6000; // The number of milliseconds when a new mouse is introduced
-  private final static int CAT_INTERVAL = 10000; // The number of milliseconds when a new mouse is introduced
   
   private int width = 1024;
   private int height = 768;
 
   private final static int ELAPSED_GAME_TIME = 0;
   private final static int ELAPSED_SINCE_LAST_MOUSE = 1;
-  private final static int ELAPSED_SINCE_LAST_CAT = 2;
-  private float[] time = new float[3];
+  private float[] time = new float[2];
 
   private boolean isRunning = false;
   private final Random random = new Random();
@@ -47,23 +48,57 @@ public class World implements Runnable {
 
   private WorldState state = WorldState.INITIALIZING;
   private Thread loop;
+  private SoundPool pool;
+  private Vector<GameObjectChangeEvent> listeners;
   
-  public World() {
-    this(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+  public World(Context context) {
+    this(context, DEFAULT_WIDTH, DEFAULT_HEIGHT);
   }
   
-  public World(int width, int height) {
+  public World(Context context, int width, int height) {
     this.width = width;
     this.height = height;
     Log.i(TAG, String.format("Initializing world size to %dx%d.", width, height));
+    
+    loadSoundAssets(context.getAssets());
+  }
+  
+  /**
+   * Loads the sound assets for the application.
+   * @param pool The sound pool to populate.
+   */
+  protected void loadSoundAssets(AssetManager assets) {
+    final int SOUND_SAMPLES = 4;
+    state = WorldState.INITIALIZING;
+
+    pool = new SoundPool(MAX_SOUND_STREAMS, AudioManager.STREAM_MUSIC, 0);
+    pool.setOnLoadCompleteListener(new OnLoadCompleteListener() {
+      private int count = 0;
+      @Override
+      public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
+        count++;
+        Log.d(TAG, String.format("%d / %d sound samples loaded. Status[%d]: %d", count, SOUND_SAMPLES, sampleId, status));
+        
+        if (count == SOUND_SAMPLES) {
+          state = WorldState.READY;
+          Log.d(TAG, "All sound assets loaded.");
+        }
+      }
+    });
+    SoundFactory.loadSound(pool, "cat", assets, "sounds/cat.mp3");
+    SoundFactory.loadSound(pool, "mouse", assets, "sounds/mouse.mp3");
+    SoundFactory.loadSound(pool, "gameover", assets, "sounds/gameover.mp3");
+    SoundFactory.loadSound(pool, "proximity", assets, "sounds/proximity.mp3");
   }
   
   public void start() {
     resume();
+    pool.autoResume();
   }
   
   public void pause() {
     isRunning = false;
+    pool.autoPause();
     state = WorldState.PAUSED;
     Log.d(TAG, String.format("Pausing world loop."));
   }
@@ -71,11 +106,35 @@ public class World implements Runnable {
   public void resume() {
     Log.d(TAG, String.format("Resuming world loop."));
     isRunning = true;
-    state = WorldState.RUNNING;
-
     if (loop == null) {
       loop = new Thread(this);
       loop.start();
+    }
+  }
+  
+  /**
+   * Registers the specified listener for a GameObjectChangeEvent
+   * @param listener The listener to register.
+   */
+  public void addGameObjectChangeEventListener(GameObjectChangeEvent listener) {
+    if (listener == null) return;
+    
+    if (listeners == null) listeners = new Vector<GameObjectChangeEvent>();
+    listeners.addElement(listener);
+  }
+
+  /**
+   * Listener trigger for GameObjectChangeEvent handler when object is added.
+   * @param obj The added GameObject
+   */
+  private void onGameObjectAdded(GameObject obj) {
+    if (obj == null) return;
+    if ((listeners != null) && (! listeners.isEmpty())) {
+      Enumeration<GameObjectChangeEvent> e = listeners.elements();
+      while (e.hasMoreElements()) {
+        GameObjectChangeEvent listener = (GameObjectChangeEvent) e.nextElement();
+        listener.added(obj);
+      }
     }
   }
   
@@ -86,10 +145,25 @@ public class World implements Runnable {
     objects.clear();
     
     cat = new Cat(0, width/2, height/2);
-    cat.speed += DISTANCE_PER_TICK;
-    objects.add(cat);
-    
-    state = WorldState.READY;
+    cat.speed = (width / 2.0f);
+    addGameObject(cat);
+  }
+
+  /**
+   * Adds the specified game object to the world.
+   * @param obj The GameObject to add.
+   */
+  public void addGameObject(GameObject obj) {
+    objects.add(obj);
+    if (state != WorldState.INITIALIZING) {
+      if (obj instanceof Cat) {
+        SoundFactory.sounds.get("cat").play();
+      }
+      else if (obj instanceof Mouse) {
+        SoundFactory.sounds.get("mouse").play();
+      }
+    }
+    onGameObjectAdded(obj);
   }
 
   @Override
@@ -97,8 +171,19 @@ public class World implements Runnable {
     int sleepTime = 0;
     long startTime = System.currentTimeMillis();
     isRunning = true;
+
+    // Don't start the game loop until we're ready...
+    while ((state != WorldState.RUNNING) && (state != WorldState.READY)) {
+      try {
+        Thread.sleep(10);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }      
+    }
+    Log.d(TAG, "World state is READY. Switching to RUNNING mode.");
     state = WorldState.RUNNING;
-    
+    SoundFactory.sounds.get("cat").play();
+
     while (isRunning) {
       int framesSkipped = 0;
       float deltaTime = (System.currentTimeMillis() - startTime);
@@ -191,12 +276,12 @@ public class World implements Runnable {
     for(int index = 0; index < mice; index++) {
       Point entry = getRandomEntryPoint(0, 0, this.width, this.height);
       Mouse mouse = new Mouse(count, entry.x, entry.y, cat);
-      mouse.speed = Math.min((random.nextFloat() * mouse.speed), 0.85f) * DISTANCE_PER_TICK; // Vary speed of the mice.
+      mouse.speed = random.nextFloat() * cat.speed; // Vary speed of the mice.
       mouse.direction = cat.getDirectionTo(mouse.position.x, mouse.position.y);
 
       count++;
-      objects.add(mouse);
       Log.d(TAG, String.format("Adding new mouse to screen at %5.1fx%5.1f with speed %5.2f heading %5.2f.", mouse.position.x, mouse.position.y, mouse.speed, mouse.direction));
+      addGameObject(mouse);
     }
   }
 
@@ -214,33 +299,17 @@ public class World implements Runnable {
 
       int mice = (int) Math.min(getCount() / 3, 6);
       addMouse((mice <= 0) ? 1 : mice);
-      
-      //for(Iterator<GameObject> iterator = getGameObjects().iterator(); iterator.hasNext();) {
-      //  GameObject obj = iterator.next();
-      //  if ((obj != null) && (obj.getClass() == Mouse.class)) {
-      //    Log.d(TAG, String.format("[%4d] Mouse at %3.1fx%3.1f heading %3.2f to %3.1fx%3.1f...", 
-      //                             obj.id, obj.position.x, obj.position.y, obj.direction, 
-      //                             cat.position.x, cat.position.y));
-      //  }
-      //}
     }
 
-//    time[ELAPSED_SINCE_LAST_CAT] += deltaTime;
-//    if (time[ELAPSED_SINCE_LAST_CAT] > CAT_INTERVAL) {
-//      time[ELAPSED_SINCE_LAST_CAT] = time[ELAPSED_SINCE_LAST_CAT] - CAT_INTERVAL;
-//      cat.position.x = random.nextInt(width);
-//      cat.position.y = random.nextInt(height);
-//      Log.d(TAG, String.format("Moving cat to %5.2fx%5.2f...", cat.position.x, cat.position.y));
-//    }
-
-    int index = 0;
-    for(Iterator<GameObject> iterator = getGameObjects().iterator(); iterator.hasNext(); index++) {
+    for(Iterator<GameObject> iterator = getGameObjects().iterator(); iterator.hasNext(); ) {
       GameObject obj = iterator.next();
       if (obj != null) {
         obj.step(deltaTime);
+        
         // Collision check / Game Over?
         if (! (obj instanceof Cat)) {
           if (cat.intersectsWith(obj.position.x, obj.position.y, obj.size)){
+            SoundFactory.sounds.get("gameover").play();
             Log.d(TAG, String.format("GAME OVER. Collision with [%d] at %5.2fx%5.2f.", obj.id, obj.position.x, obj.position.y));
             state = WorldState.GAMEOVER;
           }

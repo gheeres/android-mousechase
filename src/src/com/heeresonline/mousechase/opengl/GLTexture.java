@@ -2,10 +2,8 @@ package com.heeresonline.mousechase.opengl;
 
 import java.nio.FloatBuffer;
 
-import android.opengl.GLES20;
-
 class GLTexture extends GLObject {
-  private static final String TAG = "GLTexture";
+  //private static final String TAG = "GLTexture";
 
   protected final int id;
   public float[] uvs;

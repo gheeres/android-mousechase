@@ -1,8 +1,8 @@
 package com.heeresonline.mousechase.opengl;
 
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -14,7 +14,6 @@ import com.heeresonline.mousechase.Cat;
 import com.heeresonline.mousechase.GameObject;
 import com.heeresonline.mousechase.R;
 import com.heeresonline.mousechase.World;
-import com.heeresonline.mousechase.World.WorldState;
 
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -22,10 +21,10 @@ import android.content.res.Resources;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView.Renderer;
 import android.opengl.Matrix;
-import android.util.Log;
 
 public class GLRenderer implements Renderer {
   static final String TAG = "GLRenderer";
+
   private final Context context;
   private World world;
 
@@ -47,6 +46,7 @@ public class GLRenderer implements Renderer {
   {
     this.context = context;
     this.world = world;
+    
     lastTime = System.currentTimeMillis();
   }  
   
@@ -75,9 +75,9 @@ public class GLRenderer implements Renderer {
     // NOTE: after a successful call to this the font is ready for rendering!
     AssetManager assets = context.getAssets();
     glDebugText = new GLText(assets);
-    glDebugText.load("Roboto-Regular.ttf", (int) (screenHeight * 0.015f), 2, 2);  // Create Font (Height: 24 Pixels / X+Y Padding 2 Pixels)
+    glDebugText.load("fonts/Roboto-Regular.ttf", (int) (screenHeight * 0.015f), 2, 2);  // Create Font (Height: 24 Pixels / X+Y Padding 2 Pixels)
     glText = new GLText(assets);
-    glText.load("QuartzMS.ttf", (int) (screenHeight * 0.05f), 8, 8);  // Create Font (Height: 72 Pixels / X+Y Padding 2 Pixels)
+    glText.load("fonts/QuartzMS.ttf", (int) (screenHeight * 0.05f), 8, 8);  // Create Font (Height: 72 Pixels / X+Y Padding 2 Pixels)
     
     // Setup our screen width and height for normal sprite translation.
     Matrix.orthoM(projectionMatrix, 0, 0f, screenWidth, 0.0f, screenHeight, 0, 50);
@@ -183,6 +183,18 @@ public class GLRenderer implements Renderer {
     GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
     switch(world.getState()) {
+      case READY:
+        glText.begin(1.0f, 1.0f, 1.0f, 1.0f, matrix); 
+        glText.drawC("Ready?", screenWidth/2f, screenHeight/2f, 0);
+        glText.end();
+      break;
+  
+      case INITIALIZING:
+        glText.begin(1.0f, 1.0f, 1.0f, 1.0f, matrix); 
+        glText.drawC("Preparing game assets...", screenWidth/2f, screenHeight/2f, 0);
+        glText.end();
+      break;
+      
       case GAMEOVER:
         glText.begin(1.0f, 1.0f, 1.0f, 1.0f, matrix); 
         glText.drawC("GAME OVER", screenWidth/2f, screenHeight/2f, 0);
@@ -197,7 +209,7 @@ public class GLRenderer implements Renderer {
           if (obj != null) {
             if (obj instanceof Cat) texture = GLTextureFactory.textures.get("cube");
             else texture = GLTextureFactory.textures.get("icon");
-    //Log.d(TAG, String.format("Creating GameObject at %5.2fx%5.2f. Screen size: %5.2fx%5.2f", obj.position.x, obj.position.y, screenWidth, screenHeight));
+            //Log.d(TAG, String.format("Creating GameObject at %5.2fx%5.2f. Screen size: %5.2fx%5.2f", obj.position.x, obj.position.y, screenWidth, screenHeight));
             
             GLRectangle rectangle = new GLRectangle(obj.position.x, obj.position.y, 35f, 35f, program, texture.clone());
             rectangle.angle = obj.direction;
@@ -227,19 +239,10 @@ public class GLRenderer implements Renderer {
    */
   protected void renderFPS(float[] matrix, float deltaTime) {
     time = ((time == 0) ? 1 : time) * 0.9f + deltaTime * 0.1f; // Smooth time / fps
-    String statistics = String.format("fps: %8.2f [delta: %8.6f]", 1/time, deltaTime);
+    String statistics = String.format(Locale.getDefault(), "fps: %8.2f [delta: %8.6f]", 1/time, deltaTime);
     glDebugText.begin(1.0f, 1.0f, 1.0f, 1.0f, matrix); 
     glDebugText.draw(statistics, 0.0f, 0.0f, 0.0f);
     glDebugText.end();
-  }
-  
-  public void move(float x, float y) {
-    for(Iterator<GLShape> iterator = shapes.iterator(); iterator.hasNext(); ) {
-      GLShape shape = iterator.next();
-      if ((shape != null) && (shape instanceof GLRectangle)) {
-        //((GLRectangle) shape).move(((GLRectangle) shape).centerX() + x, ((GLRectangle) shape).centerY() + y);
-      }
-    }
   }
   
   public void resume() {

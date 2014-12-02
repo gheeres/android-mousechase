@@ -1,9 +1,6 @@
 package com.heeresonline.mousechase;
 
-import java.util.Random;
-
 import android.graphics.PointF;
-import android.util.Log;
 
 public class Mouse extends GameObject {
   public static final String TAG = "Mouse";
@@ -29,6 +26,14 @@ public class Mouse extends GameObject {
     this.target = target; 
   }
   
+  /**
+   * Gets the elapsed time that the mouse has been "alive".
+   * @return The number of milliseconds since created.
+   */
+  public float getTime() {
+    return(time);
+  }
+  
   @Override
   public void step(float deltaTime) {
     if (target == null) return;
@@ -36,7 +41,7 @@ public class Mouse extends GameObject {
 
     if ((Math.abs(target.position.x - position.x) > POSITION_PRECISION) || 
         (Math.abs(target.position.y - position.y) > POSITION_PRECISION)) {
-      getNextPosition(target.position.x, target.position.y, next);
+      getNextPosition(deltaTime, target.position.x, target.position.y, next);
       position.x = next.x;
       position.y = next.y;
 

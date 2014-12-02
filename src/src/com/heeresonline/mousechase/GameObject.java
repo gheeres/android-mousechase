@@ -71,11 +71,12 @@ public abstract class GameObject {
   
   /**
    * Gets the next step position based on the speed and direction.
+   * @param deltaTime The time elapsed in milliseconds.
    * @param x The destination x position.
    * @param y The destination y position.
    * @param next The calculated next position.
    */
-  public void getNextPosition(float x, float y, PointF next) {
+  public PointF getNextPosition(float deltaTime, float x, float y, PointF next) {
     next.x = position.x;
     next.y = position.y;
     if ((Math.abs(x - position.x) > POSITION_PRECISION) || 
@@ -86,14 +87,15 @@ public abstract class GameObject {
       deltaX /= distance;
       deltaY /= distance;
         
-      float distanceX = deltaX * speed;
+      float distanceX = deltaX * (speed * (deltaTime / 1000));
       if ((position.x + distanceX > x) || (position.x - distanceX < x)) next.x += distanceX;
       else next.x = x;
       
-      float distanceY = deltaY * speed;
+      float distanceY = deltaY * (speed * (deltaTime / 1000));
       if ((position.y + distanceY > y) || (position.y - distanceY < y)) next.y += distanceY;
       else next.y = y;
     }
+    return(next);
   }
   
   /**
