@@ -1,5 +1,6 @@
 package com.heeresonline.mousechase;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -8,10 +9,15 @@ import java.util.Random;
 import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import com.heeresonline.mousechase.SoundFactory.Sound;
+
 import android.content.Context;
+import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.graphics.Point;
 import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnPreparedListener;
 import android.media.SoundPool;
 import android.media.SoundPool.OnLoadCompleteListener;
 import android.util.Log;
@@ -46,9 +52,11 @@ public class World implements Runnable {
   private int count = 0;  
   private Cat cat;
 
+  private Context context;
   private WorldState state = WorldState.INITIALIZING;
   private Thread loop;
   private SoundPool pool;
+  private MediaPlayer mediaPlayer;
   private Vector<GameObjectChangeEvent> listeners;
   
   public World(Context context) {
@@ -56,19 +64,69 @@ public class World implements Runnable {
   }
   
   public World(Context context, int width, int height) {
+    this.context = context;
+    
     this.width = width;
     this.height = height;
     Log.i(TAG, String.format("Initializing world size to %dx%d.", width, height));
     
+    //AudioManager mgr = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+    //Log.d(TAG, String.format("Maximum volume: %d", mgr.getStreamVolume(AudioManager.STREAM_MUSIC)));
+    initializeMediaPlayer(context.getAssets());
     loadSoundAssets(context.getAssets());
   }
-  
+
+  /**
+   * Initializes the background media player. This is used for
+   * looping a background sound since the SoundPool API is broken
+   * in Android 4.3.
+   * @param assets The asset manager.
+   */
+  protected void initializeMediaPlayer(AssetManager assets) {
+    // Play proximity sound at 0 level. Loop forever
+    // 
+    // TODO: Looping is broken in Android 4.3
+    // https://code.google.com/p/android/issues/detail?id=58113
+    //SoundFactory.sounds.get("proximity").play(0, 0, -1);
+    if (mediaPlayer != null) {
+      mediaPlayer.stop();
+      mediaPlayer.release();
+    }
+    mediaPlayer = new MediaPlayer();
+    mediaPlayer.setVolume(0, 0);
+    mediaPlayer.setLooping(true);;
+    mediaPlayer.setOnPreparedListener(new OnPreparedListener() {
+      @Override
+      public void onPrepared(MediaPlayer mp) {
+        Log.d(TAG, String.format("Media player initialized."));
+        mediaPlayer.start();
+      }
+    });
+    AssetFileDescriptor afd = null;
+    try {
+      if ((afd = assets.openFd("sounds/proximity.mp3")) != null) {
+        mediaPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+        mediaPlayer.prepareAsync();
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    } finally {
+      try {
+        if (afd != null) {
+          afd.close();
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+  }
+
   /**
    * Loads the sound assets for the application.
    * @param pool The sound pool to populate.
    */
   protected void loadSoundAssets(AssetManager assets) {
-    final int SOUND_SAMPLES = 4;
+    final int SOUND_SAMPLES = 3;
     state = WorldState.INITIALIZING;
 
     pool = new SoundPool(MAX_SOUND_STREAMS, AudioManager.STREAM_MUSIC, 0);
@@ -88,7 +146,7 @@ public class World implements Runnable {
     SoundFactory.loadSound(pool, "cat", assets, "sounds/cat.mp3");
     SoundFactory.loadSound(pool, "mouse", assets, "sounds/mouse.mp3");
     SoundFactory.loadSound(pool, "gameover", assets, "sounds/gameover.mp3");
-    SoundFactory.loadSound(pool, "proximity", assets, "sounds/proximity.mp3");
+    //SoundFactory.loadSound(pool, "proximity", assets, "sounds/proximity.mp3");
   }
   
   public void start() {
@@ -301,6 +359,7 @@ public class World implements Runnable {
       addMouse((mice <= 0) ? 1 : mice);
     }
 
+    float proximity = Float.MAX_VALUE;
     for(Iterator<GameObject> iterator = getGameObjects().iterator(); iterator.hasNext(); ) {
       GameObject obj = iterator.next();
       if (obj != null) {
@@ -308,13 +367,22 @@ public class World implements Runnable {
         
         // Collision check / Game Over?
         if (! (obj instanceof Cat)) {
+          float distance = cat.getDistanceFrom(obj.position.x, obj.position.y);
+          if ((distance - obj.size - cat.size) < proximity) proximity = distance - obj.size - cat.size;
+          
           if (cat.intersectsWith(obj.position.x, obj.position.y, obj.size)){
+            mediaPlayer.stop();
             SoundFactory.sounds.get("gameover").play();
             Log.d(TAG, String.format("GAME OVER. Collision with [%d] at %5.2fx%5.2f.", obj.id, obj.position.x, obj.position.y));
             state = WorldState.GAMEOVER;
           }
         }
       }
+    }
+
+    if ((cat != null) && (state != WorldState.GAMEOVER)) {
+      float volume = Math.min(cat.size / ((proximity > 0) ? proximity : cat.size), 1.0f);
+      mediaPlayer.setVolume(volume, volume);
     }
   }
 

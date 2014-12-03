@@ -191,7 +191,7 @@ public class GLRenderer implements Renderer {
   
       case INITIALIZING:
         glText.begin(1.0f, 1.0f, 1.0f, 1.0f, matrix); 
-        glText.drawC("Preparing game assets...", screenWidth/2f, screenHeight/2f, 0);
+        glText.drawC("Initializing...", screenWidth/2f, screenHeight/2f, 0);
         glText.end();
       break;
       

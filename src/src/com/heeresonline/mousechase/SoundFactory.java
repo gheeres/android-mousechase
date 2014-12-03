@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
+import android.content.res.Resources;
 import android.media.SoundPool;
 
 /**
@@ -24,11 +26,28 @@ public class SoundFactory {
    * @param filename The name of the sound to load.
    * @return The id of the sound. If equal 0, then sound load failed.
    */
+  public static int loadSound(SoundPool pool, String name, Context context, int resourceId) {
+    int id = pool.load(context, resourceId, 1);
+    if (id > 0) {
+      sounds.put(name, new Sound(pool, id));
+      return(id);
+    }
+    return(0);
+  }
+  
+  /**
+   * Loads the specified sound.
+   * @param pool The sound pool to load the sound into.
+   * @param name The name of the sound asset.
+   * @param assets The asset manager to use.
+   * @param filename The name of the sound to load.
+   * @return The id of the sound. If equal 0, then sound load failed.
+   */
   public static int loadSound(SoundPool pool, String name, AssetManager assets, String filename) {
     AssetFileDescriptor afd = null;
     try {
       if ((afd = assets.openFd(filename)) != null) {
-        int id = pool.load(afd.getFileDescriptor(), 0, afd.getLength(), 1);
+        int id = pool.load(afd, 1);
         if (id > 0) {
           sounds.put(name, new Sound(pool, id));
           return(id);
@@ -37,13 +56,13 @@ public class SoundFactory {
     } catch (IOException e) {
       e.printStackTrace();
     } finally {
-//      try {
-//        if (afd != null) {
-//          afd.close();
-//        }
-//      } catch (IOException e) {
-//        e.printStackTrace();
-//      }
+      try {
+        if (afd != null) {
+          afd.close();
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
     }
     return(0);
   }
@@ -54,6 +73,7 @@ public class SoundFactory {
   public static class Sound {
     public final SoundPool pool;
     public final int id;
+    private int streamId;
     
     /**
      * Creates an instance of the Sound class.
@@ -66,36 +86,47 @@ public class SoundFactory {
     }
     
     /**
+     * Sets the loop for the sound.
+     * @param loop loop mode (0 = no loop, -1 = loop forever, x = number of loops)
+     */
+    public void setLoop(int loop) {
+      pool.setLoop(streamId, loop);
+    }
+
+    /**
      * Sets the volume for the specified sound.
      * @param left left volume value (range = 0.0 to 1.0)
      * @param right right volume value (range = 0.0 to 1.0)
      */
     public void setVolume(float leftVolume, float rightVolume) {
-      pool.setVolume(id, leftVolume, rightVolume);
+      pool.setVolume(streamId, leftVolume, rightVolume);
     }
 
     /**
      * Plays the specified sound. 
+     * @returns The stream id for the sound to control volume, etc.
      */
-    public void play() {
-      play(1.0f, 1.0f, 0);
+    public int play() {
+      return(play(1.0f, 1.0f, 0));
     }
 
     /**
      * Plays the specified sound. 
      * @param loop loop mode (0 = no loop, -1 = loop forever, x = number of loops)
+     * @returns The stream id for the sound to control volume, etc.
      */
-    public void play(int loop) {
-      play(1.0f, 1.0f, loop);
+    public int play(int loop) {
+      return(play(1.0f, 1.0f, loop));
     }
 
     /**
      * Plays the specified sound. 
      * @param left left volume value (range = 0.0 to 1.0)
      * @param right right volume value (range = 0.0 to 1.0)
+     * @returns The stream id for the sound to control volume, etc.
      */
-    public void play(float leftVolume, float rightVolume) {
-      play(leftVolume, rightVolume, 0);
+    public int play(float leftVolume, float rightVolume) {
+      return(play(leftVolume, rightVolume, 0));
     }
 
     /**
@@ -103,9 +134,10 @@ public class SoundFactory {
      * @param left left volume value (range = 0.0 to 1.0)
      * @param right right volume value (range = 0.0 to 1.0)
      * @param loop loop mode (0 = no loop, -1 = loop forever, x = number of loops)
+     * @returns The stream id for the sound to control volume, etc.
      */
-    public void play(float leftVolume, float rightVolume, int loop) {
-      pool.play(id,  leftVolume, rightVolume, 1, loop, 1.0f);
+    public int play(float leftVolume, float rightVolume, int loop) {
+      return(streamId = pool.play(id, leftVolume, rightVolume, 1, loop, 1.0f));
     }
 
     /**
