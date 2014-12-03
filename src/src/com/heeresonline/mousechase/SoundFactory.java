@@ -78,14 +78,14 @@ public class SoundFactory {
      * Plays the specified sound. 
      */
     public void play() {
-      play(1.0f, 1.0f, false);
+      play(1.0f, 1.0f, 0);
     }
 
     /**
      * Plays the specified sound. 
-     * @param loop loop mode (false = no loop, true = loop forever)
+     * @param loop loop mode (0 = no loop, -1 = loop forever, x = number of loops)
      */
-    public void play(boolean loop) {
+    public void play(int loop) {
       play(1.0f, 1.0f, loop);
     }
 
@@ -93,20 +93,19 @@ public class SoundFactory {
      * Plays the specified sound. 
      * @param left left volume value (range = 0.0 to 1.0)
      * @param right right volume value (range = 0.0 to 1.0)
-     * @param loop loop mode (false = no loop, true = loop forever)
      */
     public void play(float leftVolume, float rightVolume) {
-      play(leftVolume, rightVolume, false);
+      play(leftVolume, rightVolume, 0);
     }
 
     /**
      * Plays the specified sound. 
      * @param left left volume value (range = 0.0 to 1.0)
      * @param right right volume value (range = 0.0 to 1.0)
-     * @param loop loop mode (false = no loop, true = loop forever)
+     * @param loop loop mode (0 = no loop, -1 = loop forever, x = number of loops)
      */
-    public void play(float leftVolume, float rightVolume, boolean loop) {
-      pool.play(id,  leftVolume, rightVolume, 1, loop ? -1 : 0, 1.0f);
+    public void play(float leftVolume, float rightVolume, int loop) {
+      pool.play(id,  leftVolume, rightVolume, 1, loop, 1.0f);
     }
 
     /**
