@@ -49,6 +49,7 @@ public class Mouse extends GameObject {
         position.x = next.x;
         position.y = next.y;
       }
+      direction = getDirectionTo(target.position.x, target.position.y);
 
       //Log.v(World.TAG, String.format("[%4d] Mouse move %3.1fx%3.1f (%3.3fx%3.3f) heading %3.2f to %3.1fx%3.1f...", 
       //                               id, position.x, position.y, deltaX, deltaY, direction, target.position.x, target.position.y));

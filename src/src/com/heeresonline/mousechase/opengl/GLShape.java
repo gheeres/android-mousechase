@@ -3,6 +3,7 @@ package com.heeresonline.mousechase.opengl;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
+import android.graphics.PointF;
 import android.opengl.GLES20;
 
 /**
@@ -16,6 +17,11 @@ public class GLShape extends GLObject {
   protected short[] indices;
   protected GLTexture texture;
   protected int program;
+  
+  protected final PointF origin = new PointF();
+  protected final PointF scale = new PointF(1.0f, 1.0f);
+  protected float angle;
+  
   
   public GLShape(float[] vertices, short[] indices, int program) {
     this(0, vertices, indices, program);
@@ -44,6 +50,9 @@ public class GLShape extends GLObject {
   }
   
   protected void drawTexture(float[] matrix) {
+    // Bind the texture
+    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture.id);
+
     // get handle to vertex shader's vPosition member
     // Enable generic vertex attribute array
     // Prepare the triangle coordinate data
@@ -69,7 +78,6 @@ public class GLShape extends GLObject {
     GLES20.glUniform1i(s_texture, 0);
 
     // Draw 
-    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture.id);
     GLES20.glDrawElements(GLES20.GL_TRIANGLES, indices.length, GLES20.GL_UNSIGNED_SHORT, getIndexBuffer());
 
     // Disable vertex array
@@ -97,6 +105,58 @@ public class GLShape extends GLObject {
     GLES20.glDisableVertexAttribArray(vPosition);
   }
 
+  /**
+   * Gets the origin
+   * @return The origin or center.
+   */
+  public PointF origin() {
+    return(origin);
+  }
+
+  /**
+   * Get's the current angle of the item.
+   * @return
+   */
+  public float angle() {
+    return(angle);
+  }
+  
+  /**
+   * Moves the center of the item to the specified x and y coordinate.
+   * @param x The x position.
+   * @param y
+   */
+  public void translate(float x, float y) {
+    origin.x = x;
+    origin.y = y;
+  }
+
+  /**
+   * Scales the item the specified amount.
+   * @param scale The scale
+   */
+  public void scale(float scale) {
+    scale(scale, scale);
+  }
+
+  /**
+   * Scales the item the specified amount.
+   * @param x The scale for the x position.
+   * @param y The scale for the y position.
+   */
+  public void scale(float x, float y) {
+    scale.x = x;
+    scale.y = y;
+  }
+
+  /**
+   * The angle to rotate the item.
+   * @param angle The angle to rotate.
+   */
+  public void rotate(float angle) {
+    this.angle = angle;
+  }
+  
   public FloatBuffer getVertexBuffer() {
     return(getFloatBuffer(vertices));
   }

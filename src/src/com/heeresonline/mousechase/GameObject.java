@@ -14,8 +14,8 @@ public abstract class GameObject {
   public final PointF position;
   public float direction;
   public float speed = 1.0f;
-  public float size = 35.0f;
-  public float padding = 5.0f;
+  public float size = 64.0f;
+  public float paddingPercentage = 0.1f;
 
   /**
    * Creates an instance of the GameObject class.
@@ -91,7 +91,7 @@ public abstract class GameObject {
    * @return
    */
   public float getCollisionRadius() {
-    return(size / 2 - padding);
+    return(size / 2 - (size * paddingPercentage));
   }
   
   /**
@@ -99,15 +99,15 @@ public abstract class GameObject {
    * @param x The x coordinate to inspect.
    * @param y The y coordinate to inspect.
    * @param size The size/radius of the item.
-   * @param padding The padding (or buffer) around the item.
+   * @param paddingPercentage The padding (or buffer) percentage around the item.
    * @param objects The game objects.
    * @return True if collision, false if otherwise
    */
-  public static boolean collidesWith(float x, float y, float size, float padding, GameObject obj) {
+  public static boolean collidesWith(float x, float y, float size, float paddingPercentage, GameObject obj) {
     if (obj == null) return(false);
 
     float distance = getDistance(x, y, obj.position.x, obj.position.y);
-    return((distance - (obj.getCollisionRadius() - (size / 2) - padding)) <= 0);
+    return((distance - (obj.getCollisionRadius() + ((size / 2) - (size * paddingPercentage)))) <= 0);
   }
 
   /**
@@ -117,7 +117,7 @@ public abstract class GameObject {
    * @return True if collision, false if otherwise
    */
   public boolean collidesWith(float x, float y, GameObject obj) {
-    return(collidesWith(x, y, size, padding, obj));
+    return(collidesWith(x, y, size, paddingPercentage, obj));
   }
 
   /**
@@ -126,7 +126,7 @@ public abstract class GameObject {
    * @return True if collision, false if otherwise
    */
   public boolean collidesWith(GameObject obj) {
-    return(collidesWith(position.x, position.y, size, padding, obj));
+    return(collidesWith(position.x, position.y, size, paddingPercentage, obj));
   }
 
   /**
@@ -136,7 +136,7 @@ public abstract class GameObject {
    * @return The game object collided with
    */
   public GameObject collidesWith(Iterable<GameObject> objects, Class<?> filter) {
-    return(collidesWith(position.x, position.y, size, padding, objects, filter));
+    return(collidesWith(position.x, position.y, size, paddingPercentage, objects, filter));
   }
 
   /**
@@ -147,8 +147,8 @@ public abstract class GameObject {
    * @param filter The filter / type of game object to check for.
    * @return The game object collided with
    */
-  public GameObject collidesWith(float x, float y,Iterable<GameObject> objects, Class<?> filter) {
-    return(collidesWith(x, y, size, padding, objects, filter));
+  public GameObject collidesWith(float x, float y, Iterable<GameObject> objects, Class<?> filter) {
+    return(collidesWith(x, y, size, paddingPercentage, objects, filter));
   }
 
   /**
@@ -156,17 +156,17 @@ public abstract class GameObject {
    * @param x The x coordinate to inspect.
    * @param y The y coordinate to inspect.
    * @param size The size/radius of the item.
-   * @param padding The padding (or buffer) around the item.
+   * @param paddingPercentage The padding (or buffer) around the item.
    * @param objects The game objects.
    * @param filter The filter / type of game object to check for.
    * @return The game object collided with
    */
-  public static GameObject collidesWith(float x, float y, float size, float padding, Iterable<GameObject> objects, Class<?> filter) {
+  public static GameObject collidesWith(float x, float y, float size, float paddingPercentage, Iterable<GameObject> objects, Class<?> filter) {
     Iterator<GameObject> iterator = objects.iterator();
     while (iterator.hasNext()) {
       GameObject obj = iterator.next();
       if (obj.getClass() == filter) {
-        if (collidesWith(x, y, size, padding, obj)) {
+        if (collidesWith(x, y, size, paddingPercentage, obj)) {
           return(obj);
         }
       }

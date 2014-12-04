@@ -45,9 +45,17 @@ public class Cat extends GameObject {
         (Math.abs(destination.y - position.y) > POSITION_PRECISION)) {
       getNextPosition(deltaTime, destination.x, destination.y, next);
 
-      if (collidesWith(next.x, next.y, objects, Barrier.class) == null) {
+      GameObject obj;
+      if ((obj = collidesWith(next.x, next.y, objects, Barrier.class)) == null) {
         position.x = next.x;
         position.y = next.y;
+      }
+      else {
+        Log.v(TAG, String.format("Collision with GameObject %d (%5.2f,%5.2f) with size %5.2f @ %5.2fx%5.2f detected. Unable to move.", 
+                                 obj.id, obj.position.x, obj.position.y, obj.size,
+                                 position.x, position.y));
+        destination.x = position.x;
+        destination.y = position.y;
       }
       direction = getDirectionTo(destination.x, destination.y);
     }

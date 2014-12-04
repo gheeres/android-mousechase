@@ -210,7 +210,7 @@ public class World implements Runnable {
     objects.clear();
     count = 0;
     
-    cat = new Cat(0, width/2, height/2);
+    cat = new Cat(-1, width/2, height/2);
     cat.speed = 400.0f;
     addGameObject(cat);
 
@@ -240,7 +240,8 @@ public class World implements Runnable {
 
       Barrier barrier = new Barrier(count+1, x, y);
       barrier.size = Math.max(cat.size * 3 * random.nextFloat(), cat.size);
-      Log.d(TAG, String.format("Adding barrier at size %5.2f at %5.2fx%5.2f", barrier.size, barrier.position.x, barrier.position.y));
+      barrier.paddingPercentage = 0.0f;
+      Log.d(TAG, String.format("Adding barrier with size %5.2f @ %5.2fx%5.2f", barrier.size, barrier.position.x, barrier.position.y));
       addGameObject(barrier);
     }
   }
@@ -365,16 +366,16 @@ public class World implements Runnable {
   public void addMouse(int mice) {
     time[ELAPSED_SINCE_LAST_MOUSE] = 0;
 
-    for(int index = 0; index < mice; index++) {
-      Point entry = getRandomEntryPoint(0, 0, this.width, this.height);
-      Mouse mouse = new Mouse(count, entry.x, entry.y, cat);
-      mouse.speed = random.nextFloat() * cat.speed; // Vary speed of the mice.
-      mouse.direction = cat.getDirectionTo(mouse.position.x, mouse.position.y);
-
-      count++;
-      Log.d(TAG, String.format("Adding new mouse to screen at %5.1fx%5.1f with speed %5.2f heading %5.2f.", mouse.position.x, mouse.position.y, mouse.speed, mouse.direction));
-      addGameObject(mouse);
-    }
+//    for(int index = 0; index < mice; index++) {
+//      Point entry = getRandomEntryPoint(0, 0, this.width, this.height);
+//      Mouse mouse = new Mouse(count, entry.x, entry.y, cat);
+//      mouse.speed = random.nextFloat() * cat.speed; // Vary speed of the mice.
+//      mouse.direction = cat.getDirectionTo(mouse.position.x, mouse.position.y);
+//
+//      count++;
+//      Log.d(TAG, String.format("Adding new mouse to screen at %5.1fx%5.1f with speed %5.2f heading %5.2f.", mouse.position.x, mouse.position.y, mouse.speed, mouse.direction));
+//      addGameObject(mouse);
+//    }
   }
 
   /**

@@ -3,7 +3,6 @@ package com.heeresonline.mousechase.opengl;
 import java.nio.FloatBuffer;
 
 import android.graphics.Matrix;
-import android.graphics.PointF;
 
 public class GLRectangle extends GLShape {
   //public static final String TAG = "GLRectangle";
@@ -12,11 +11,8 @@ public class GLRectangle extends GLShape {
     0, 1, 2, 0, 2, 3 
   };
   
-  public final PointF origin = new PointF();
-  public final PointF scale = new PointF(1.0f, 1.0f);
   public float width;
   public float height;
-  public float angle;
 
   public GLRectangle(float x, float y, float width, float height, int program) {
     this(0, x, y, width, height, program, null);
@@ -107,58 +103,6 @@ public class GLRectangle extends GLShape {
    */
   public float width() {
     return(height);
-  }
-  
-  /**
-   * Gets the origin
-   * @return The origin or center.
-   */
-  public PointF origin() {
-    return(origin);
-  }
-
-  /**
-   * Get's the current angle of the item.
-   * @return
-   */
-  public float angle() {
-    return(angle);
-  }
-  
-  /**
-   * Moves the center of the item to the specified x and y coordinate.
-   * @param x The x position.
-   * @param y
-   */
-  public void translate(float x, float y) {
-    origin.x = x;
-    origin.y = y;
-  }
-
-  /**
-   * Scales the item the specified amount.
-   * @param scale The scale
-   */
-  public void scale(float scale) {
-    scale(scale, scale);
-  }
-
-  /**
-   * Scales the item the specified amount.
-   * @param x The scale for the x position.
-   * @param y The scale for the y position.
-   */
-  public void scale(float x, float y) {
-    scale.x = x;
-    scale.y = y;
-  }
-
-  /**
-   * The angle to rotate the item.
-   * @param angle The angle to rotate.
-   */
-  public void rotate(float angle) {
-    this.angle = angle;
   }
   
   @Override

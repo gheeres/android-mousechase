@@ -13,6 +13,7 @@ import com.android.opengl.GLText;
 import com.heeresonline.mousechase.Barrier;
 import com.heeresonline.mousechase.Cat;
 import com.heeresonline.mousechase.GameObject;
+import com.heeresonline.mousechase.GameObjectChangeEvent;
 import com.heeresonline.mousechase.R;
 import com.heeresonline.mousechase.World;
 
@@ -22,6 +23,7 @@ import android.content.res.Resources;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView.Renderer;
 import android.opengl.Matrix;
+import android.util.Log;
 
 public class GLRenderer implements Renderer {
   static final String TAG = "GLRenderer";
@@ -50,6 +52,23 @@ public class GLRenderer implements Renderer {
   {
     this.context = context;
     this.world = world;
+    this.world.setGameObjectChangeEventListener(new GameObjectChangeEvent() {
+      @Override
+      public void added(GameObject obj) {
+        GLTexture texture;
+        int program = GLShaderFactory.programs.get("texture2D");
+        if (obj instanceof Cat) texture = GLTextureFactory.textures.get("cat");
+        else if (obj instanceof Barrier) texture = GLTextureFactory.textures.get("barrier");
+        else texture = GLTextureFactory.textures.get("mouse");
+            
+        Log.d(TAG, String.format("Creating GLRectangle with size %5.2f @ %5.2fx%5.2f with angle %5.2f using texture %d. Screen size: %5.2fx%5.2f", 
+                                  obj.size, obj.position.x, obj.position.y, 
+                                  obj.direction, texture.id, screenWidth, screenHeight));
+        GLRectangle rectangle = new GLRectangle(obj.id, obj.position.x, obj.position.y, obj.size, obj.size, program, texture.clone());
+        rectangle.rotate(obj.direction);
+        shapes.add(rectangle);
+      }
+    });
     
     lastTime = System.currentTimeMillis();
   }  
@@ -166,29 +185,26 @@ public class GLRenderer implements Renderer {
         glInfoText.begin(0.8f, 0.8f, 0.8f, 1.0f, matrix); 
         glInfoText.drawC("Touch screen to restart", screenWidth/2f, screenHeight/2f - glText.getHeight(), 0);
         glInfoText.end();
-      //break;
+  
+        // Intentionally fall through to the RUNNING status so that the last positions are rendered.
+        //break;
       
       case RUNNING:
-        int program = GLShaderFactory.programs.get("texture2D");
-        GLTexture texture = GLTextureFactory.textures.get("icon");
-        for(Iterator<GameObject> iterator = world.getGameObjects().iterator(); iterator.hasNext(); ){
-          GameObject obj = iterator.next();
+        // Synchronize the game/world objects with our visual representations (i.e. GL objects).
+        for(Iterator<GameObject> gameObjectIterator = world.getGameObjects().iterator(); gameObjectIterator.hasNext(); ){
+          GameObject obj = gameObjectIterator.next();
           if (obj != null) {
-            if (obj instanceof Cat) texture = GLTextureFactory.textures.get("cat");
-            else if (obj instanceof Barrier) texture = GLTextureFactory.textures.get("barrier");
-            else texture = GLTextureFactory.textures.get("mouse");
-            //Log.d(TAG, String.format("Creating GameObject at %5.2fx%5.2f. Screen size: %5.2fx%5.2f", obj.position.x, obj.position.y, screenWidth, screenHeight));
-            
-            GLRectangle rectangle = new GLRectangle(obj.position.x, obj.position.y, obj.size, obj.size, program, texture.clone());
-            rectangle.angle = obj.direction;
-            rectangle.draw(matrix);
-          }
-        }
-        
-        for(Iterator<GLShape> iterator = shapes.iterator(); iterator.hasNext(); ) {
-          GLShape shape = iterator.next();
-          if (shape != null) {
-            shape.draw(matrix);
+            boolean found = false;
+            for(Iterator<GLShape> shapeIterator = shapes.iterator(); (! found) && shapeIterator.hasNext(); ) {
+              GLShape shape = shapeIterator.next();
+              if ((shape != null) && (shape.id == obj.id)) {
+                found = true;
+                
+                shape.translate(obj.position.x, obj.position.y);
+                shape.rotate(obj.direction);
+                shape.draw(matrix);
+              }
+            }
           }
         }
       break;
