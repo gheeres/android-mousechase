@@ -151,8 +151,8 @@ public class World implements Runnable {
   
   public void start() {
     if (state == WorldState.GAMEOVER) {
-      mediaPlayer.start();
       state = WorldState.RUNNING;
+      initializeMediaPlayer(context.getAssets());
     }
     resume();
     pool.autoResume();
@@ -237,7 +237,6 @@ public class World implements Runnable {
     for(int index = 0, length = time.length; index < length; index++) {
       time[index] = 0;
     }
-    count = 0;
     clearGameObjects();
     
     cat = new Cat(objects.size(), width/2, height/2);
@@ -294,6 +293,7 @@ public class World implements Runnable {
    * Removes all game objects.
    */
   public void clearGameObjects() {
+    count = 0;
     objects.clear();
     onGameObjectsCleared();
   }
@@ -454,7 +454,7 @@ public class World implements Runnable {
           if ((distance - ((obj.size - cat.size) / 2)) < proximity) proximity = distance - ((obj.size - cat.size) / 2);
 
           if (cat.intersectsWith(obj.position.x, obj.position.y, obj.size)){
-            mediaPlayer.stop();
+            if (mediaPlayer != null) mediaPlayer.stop();
             SoundFactory.sounds.get("gameover").play();
             Log.d(TAG, String.format("GAME OVER. Collision with [%d] at %5.2fx%5.2f.", obj.id, obj.position.x, obj.position.y));
             state = WorldState.GAMEOVER;
@@ -465,7 +465,10 @@ public class World implements Runnable {
 
     if ((cat != null) && (state != WorldState.GAMEOVER)) {
       float volume = Math.min(cat.size / ((proximity > 0) ? proximity : cat.size), 1.0f);
-      mediaPlayer.setVolume(volume, volume);
+      try {
+        mediaPlayer.setVolume(volume, volume);
+      } catch(Exception e) {
+      }
     }
   }
 
