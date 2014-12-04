@@ -237,7 +237,7 @@ public class World implements Runnable {
       } while (exclusion.contains(x, y));
 
       Barrier barrier = new Barrier(objects.size(), x, y);
-      barrier.size = Math.max(cat.size * 3 * random.nextFloat(), cat.size);
+      barrier.size = Math.max(cat.size * 6 * random.nextFloat(), cat.size);
       barrier.paddingPercentage = 0.0f;
       Log.d(TAG, String.format("Adding barrier with size %5.2f @ %5.2fx%5.2f", barrier.size, barrier.position.x, barrier.position.y));
       addGameObject(barrier);
