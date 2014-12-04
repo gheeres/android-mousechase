@@ -177,7 +177,7 @@ public class World implements Runnable {
    * Registers the specified listener for a GameObjectChangeEvent
    * @param listener The listener to register.
    */
-  public void addGameObjectChangeEventListener(GameObjectChangeEvent listener) {
+  public void setGameObjectChangeEventListener(GameObjectChangeEvent listener) {
     if (listener == null) return;
     
     if (listeners == null) listeners = new Vector<GameObjectChangeEvent>();
