@@ -9,8 +9,6 @@ import java.util.Random;
 import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import com.heeresonline.mousechase.SoundFactory.Sound;
-
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
