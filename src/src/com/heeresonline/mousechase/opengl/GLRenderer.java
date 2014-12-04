@@ -3,7 +3,6 @@ package com.heeresonline.mousechase.opengl;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -106,7 +105,7 @@ public class GLRenderer implements Renderer {
     glHudText = new GLText(assets);
     glHudText.load("fonts/MotorwerkOblique.ttf", (int) (screenHeight * 0.05f), 8, 8);  // Create Font (Height: 72 Pixels / X+Y Padding 2 Pixels)
     glHudSmallText = new GLText(assets);
-    glHudSmallText.load("fonts/MotorwerkOblique.ttf", (int) (screenHeight * 0.0375f), 8, 8);  // Create Font (Height: 72 Pixels / X+Y Padding 2 Pixels)
+    glHudSmallText.load("fonts/MotorwerkOblique.ttf", (int) (screenHeight * 0.03f), 8, 8);  // Create Font (Height: 72 Pixels / X+Y Padding 2 Pixels)
     
     // Setup our screen width and height for normal sprite translation.
     Matrix.orthoM(projectionMatrix, 0, 0f, screenWidth, 0.0f, screenHeight, 0, 50);
@@ -128,14 +127,14 @@ public class GLRenderer implements Renderer {
     
     // Register our shaders
     Resources res = context.getResources();
-    GLShaderFactory.addProgram("solidColor", new int[] {
-      GLShaderFactory.loadShader(GLES20.GL_VERTEX_SHADER, res, R.raw.solidcolor_vs),
-      GLShaderFactory.loadShader(GLES20.GL_FRAGMENT_SHADER, res, R.raw.solidcolor_fs),
-    });
-    GLShaderFactory.addProgram("gradientColor", new int[] {
-      GLShaderFactory.loadShader(GLES20.GL_VERTEX_SHADER, res, R.raw.gradientcolor_vs),
-      GLShaderFactory.loadShader(GLES20.GL_FRAGMENT_SHADER, res, R.raw.gradientcolor_fs),
-    });
+    //GLShaderFactory.addProgram("solidColor", new int[] {
+    //  GLShaderFactory.loadShader(GLES20.GL_VERTEX_SHADER, res, R.raw.solidcolor_vs),
+    //  GLShaderFactory.loadShader(GLES20.GL_FRAGMENT_SHADER, res, R.raw.solidcolor_fs),
+    //});
+    //GLShaderFactory.addProgram("gradientColor", new int[] {
+    //  GLShaderFactory.loadShader(GLES20.GL_VERTEX_SHADER, res, R.raw.gradientcolor_vs),
+    //  GLShaderFactory.loadShader(GLES20.GL_FRAGMENT_SHADER, res, R.raw.gradientcolor_fs),
+    //});
     GLShaderFactory.addProgram("texture2D", new int[] {
       GLShaderFactory.loadShader(GLES20.GL_VERTEX_SHADER, res, R.raw.image_vs),
       GLShaderFactory.loadShader(GLES20.GL_FRAGMENT_SHADER, res, R.raw.image_fs),
@@ -230,7 +229,7 @@ public class GLRenderer implements Renderer {
     glHudText.draw(label, 0.0f, screenHeight - glHudText.getHeight(), 0.0f);
     glHudText.end();
 
-    String value = String.format("%03d", count);
+    String value = String.format(Locale.getDefault(), "%03d", count);
     glHudText.begin(1.0f, 0.94f, 0.0f, 1.0f, matrix); 
     glHudText.draw(value, width, screenHeight - glHudText.getHeight(), 0.0f);
     glHudText.end();
@@ -242,13 +241,13 @@ public class GLRenderer implements Renderer {
    * @param elapsedTime The number of milliseconds elapsed since game start.
    */
   protected void renderElapsedTime(float[] matrix, float elapsedTime) {
-    String elapsedMilliSeconds = String.format(".%03.0f", elapsedTime % 1000);
+    String elapsedMilliSeconds = String.format(Locale.getDefault(), ".%03.0f", elapsedTime % 1000);
     float width = glHudText.getLength(elapsedMilliSeconds);
     glHudSmallText.begin(1.0f, 0.94f, 0.0f, 1.0f, matrix); 
-    glHudSmallText.draw(elapsedMilliSeconds, screenWidth - width, screenHeight - glHudText.getHeight(), 0.0f);
+    glHudSmallText.draw(elapsedMilliSeconds, screenWidth - width, screenHeight - glHudText.getHeight() + (glHudText.getHeight() * 0.1081f), 0.0f);
     glHudSmallText.end();
 
-    String elapsedSeconds = String.format("%03.0f", elapsedTime / 1000);
+    String elapsedSeconds = String.format(Locale.getDefault(), "%03.0f", elapsedTime / 1000);
     width = width + glHudText.getLength(elapsedSeconds);
     glHudText.begin(1.0f, 0.94f, 0.0f, 1.0f, matrix); 
     glHudText.draw(elapsedSeconds, screenWidth - width, screenHeight - glHudText.getHeight(), 0.0f);

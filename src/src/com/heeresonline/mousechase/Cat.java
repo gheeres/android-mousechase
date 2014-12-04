@@ -1,7 +1,5 @@
 package com.heeresonline.mousechase;
 
-import java.util.Iterator;
-
 import android.graphics.PointF;
 import android.util.Log;
 
