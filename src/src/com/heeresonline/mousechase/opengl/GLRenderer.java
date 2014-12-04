@@ -125,8 +125,8 @@ public class GLRenderer implements Renderer {
     // Load our textures
     GLTextureFactory.addTexture("atlas", context.getAssets(), "textureatlas.png");
     GLTextureFactory.addTexture("barrier", context.getAssets(), "barrier.png");
-    GLTextureFactory.addTexture("cube", context.getAssets(), "cube.png");
-    GLTextureFactory.addTexture("mouse", context.getResources(), R.drawable.ic_launcher);
+    GLTextureFactory.addTexture("cat", context.getAssets(), "cat.png");
+    GLTextureFactory.addTexture("mouse", context.getAssets(), "mouse.png");
   }  
 
   /**
@@ -174,7 +174,7 @@ public class GLRenderer implements Renderer {
         for(Iterator<GameObject> iterator = world.getGameObjects().iterator(); iterator.hasNext(); ){
           GameObject obj = iterator.next();
           if (obj != null) {
-            if (obj instanceof Cat) texture = GLTextureFactory.textures.get("cube");
+            if (obj instanceof Cat) texture = GLTextureFactory.textures.get("cat");
             else if (obj instanceof Barrier) texture = GLTextureFactory.textures.get("barrier");
             else texture = GLTextureFactory.textures.get("mouse");
             //Log.d(TAG, String.format("Creating GameObject at %5.2fx%5.2f. Screen size: %5.2fx%5.2f", obj.position.x, obj.position.y, screenWidth, screenHeight));
