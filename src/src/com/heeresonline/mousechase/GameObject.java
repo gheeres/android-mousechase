@@ -14,7 +14,7 @@ public abstract class GameObject {
   public final PointF position;
   public float direction;
   public float speed = 1.0f;
-  public float size = 10.0f;
+  public float size = 35.0f;
 
   /**
    * Creates an instance of the GameObject class.
@@ -55,7 +55,7 @@ public abstract class GameObject {
    */
   public boolean intersectsWith(float x, float y, float size) {
     float distance = getDistanceFrom(x, y);
-    return(distance - (this.size + size) <= 0);
+    return((distance - ((this.size + size) / 2)) <= 0);
   }
 
   /**
@@ -96,7 +96,7 @@ public abstract class GameObject {
     if (obj == null) return(false);
 
     float distance = getDistance(x, y, obj.position.x, obj.position.y);
-    return(((distance - obj.size - size) <= 0));
+    return(((distance - ((obj.size - size) / 2)) <= 0));
   }
 
   /**

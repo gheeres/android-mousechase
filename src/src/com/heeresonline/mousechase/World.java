@@ -211,10 +211,10 @@ public class World implements Runnable {
     count = 0;
     
     cat = new Cat(0, width/2, height/2);
-    cat.speed = (width / 2.0f);
+    cat.speed = 400.0f;
     addGameObject(cat);
 
-    //generateRandomBarriers(BARRIER_COUNT);
+    generateRandomBarriers(BARRIER_COUNT);
   }
 
   /**
@@ -226,7 +226,7 @@ public class World implements Runnable {
     
     float centerX = width/2.0f;
     float centerY = height/2.0f;
-    float size = cat.size * 20;
+    float size = cat.size * 10;
     RectF exclusion = new RectF(centerX - size, centerY - size, centerX + size, centerY + size);
     Log.d(TAG, String.format("EXCLUDED BARRIER ZONE: x1:%5.2f,y1:%5.2f x2:%5.2f,y2:%5.2f", exclusion.left, exclusion.bottom, exclusion.top, exclusion.right));
     
@@ -403,7 +403,7 @@ public class World implements Runnable {
         // Collision check / Game Over?
         if (obj instanceof Mouse) {
           float distance = cat.getDistanceFrom(obj.position.x, obj.position.y);
-          if ((distance - obj.size - cat.size) < proximity) proximity = distance - obj.size - cat.size;
+          if ((distance - ((obj.size - cat.size) / 2)) < proximity) proximity = distance - ((obj.size - cat.size) / 2);
 
           if (cat.intersectsWith(obj.position.x, obj.position.y, obj.size)){
             mediaPlayer.stop();

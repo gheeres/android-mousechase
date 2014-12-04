@@ -179,7 +179,7 @@ public class GLRenderer implements Renderer {
             else texture = GLTextureFactory.textures.get("mouse");
             //Log.d(TAG, String.format("Creating GameObject at %5.2fx%5.2f. Screen size: %5.2fx%5.2f", obj.position.x, obj.position.y, screenWidth, screenHeight));
             
-            GLRectangle rectangle = new GLRectangle(obj.position.x, obj.position.y, obj.size * 4.0f, obj.size * 4.0f, program, texture.clone());
+            GLRectangle rectangle = new GLRectangle(obj.position.x, obj.position.y, obj.size, obj.size, program, texture.clone());
             rectangle.angle = obj.direction;
             rectangle.draw(matrix);
           }
