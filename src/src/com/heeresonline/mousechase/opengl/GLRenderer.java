@@ -199,7 +199,7 @@ public class GLRenderer implements Renderer {
               GLShape shape = shapeIterator.next();
               if ((shape != null) && (shape.id == obj.id)) {
                 found = true;
-                
+
                 shape.translate(obj.position.x, obj.position.y);
                 shape.rotate(obj.direction);
                 shape.draw(matrix);

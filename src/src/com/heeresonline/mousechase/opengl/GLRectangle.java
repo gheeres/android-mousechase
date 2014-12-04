@@ -31,6 +31,7 @@ public class GLRectangle extends GLShape {
 
     this.origin.x = x;
     this.origin.y = y;
+    
     this.width = width;
     this.height = height;
   }
@@ -107,7 +108,7 @@ public class GLRectangle extends GLShape {
   
   @Override
   public FloatBuffer getVertexBuffer() {
-    float[] vertices2d = getMatrix2(getVertices(origin.x, origin.y, width, height));
+    float[] vertices2d = getMatrix2(getVertices(origin.x, origin.y, width(), height()));
 
     Matrix m = new Matrix();
     m.setScale(scale.x, scale.y);

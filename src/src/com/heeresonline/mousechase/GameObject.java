@@ -14,7 +14,7 @@ public abstract class GameObject {
   public final PointF position;
   public float direction;
   public float speed = 1.0f;
-  public float size = 64.0f;
+  public float size = 32.0f;
   public float paddingPercentage = 0.1f;
 
   /**
