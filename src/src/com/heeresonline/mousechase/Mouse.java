@@ -1,7 +1,5 @@
 package com.heeresonline.mousechase;
 
-import java.util.Iterator;
-
 import android.graphics.PointF;
 
 public class Mouse extends GameObject {
@@ -45,9 +43,17 @@ public class Mouse extends GameObject {
         (Math.abs(target.position.y - position.y) > POSITION_PRECISION)) {
       getNextPosition(deltaTime, target.position.x, target.position.y, next);
       
-      if (collidesWith(next.x, next.y, objects, Barrier.class) == null) {
+      GameObject obj = null;
+      if ((obj = collidesWith(next.x, next.y, objects, Barrier.class)) == null) {
         position.x = next.x;
         position.y = next.y;
+      }
+      else {
+        // Allow object to "slide" past the Barrier (instead of sticking)      
+        if (obj instanceof Barrier) {
+          position.x += (speed * (deltaTime / 1000)) * ((obj.position.x > position.x) ? -1 : (obj.position.x < position.x) ? 1 : 0);
+          position.y += (speed * (deltaTime / 1000)) * ((obj.position.y > position.y) ? -1 : (obj.position.y < position.y) ? 1 : 0);
+        }
       }
       direction = getDirectionTo(target.position.x, target.position.y);
 
