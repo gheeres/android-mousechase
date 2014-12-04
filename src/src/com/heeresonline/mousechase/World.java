@@ -150,7 +150,10 @@ public class World implements Runnable {
   }
   
   public void start() {
-    if (state == WorldState.GAMEOVER) state = WorldState.RUNNING;
+    if (state == WorldState.GAMEOVER) {
+      mediaPlayer.start();
+      state = WorldState.RUNNING;
+    }
     resume();
     pool.autoResume();
   }
