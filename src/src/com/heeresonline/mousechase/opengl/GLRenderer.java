@@ -86,7 +86,6 @@ public class GLRenderer implements Renderer {
     // Calculate the projection and view transformation
     Matrix.multiplyMM(projectionAndViewMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
 
-    //generateRandomShapes(100);
     world.initialize();
     world.start();
   }
@@ -128,53 +127,6 @@ public class GLRenderer implements Renderer {
       projectionMatrix[index] = 0.0f;
       viewMatrix[index] = 0.0f;
       projectionAndViewMatrix[index] = 0.0f;
-    }
-  }
-
-  protected void generateRandomShapes(int count) {
-    Random random = new Random();
-    int program = GLShaderFactory.programs.get("texture2D");
-    GLTexture[] textures = GLTextureFactory.textures.values().toArray(new GLTexture[0]);
-    
-    float[][] atlas = new float[][] {
-      new float[] {
-          0.0f, 0.0f,
-          0.0f, 0.5f,
-          0.5f, 0.5f,
-          0.5f, 0.0f  
-        },
-      new float[] {
-        0.0f, 0.5f,
-        0.0f, 1.0f,
-        0.5f, 1.0f,
-        0.5f, 0.5f  
-      },
-      new float[] {
-        0.5f, 0.5f,
-        0.5f, 1.0f,
-        1.0f, 1.0f,
-        1.0f, 0.5f  
-      },
-      new float[] {
-        0.5f, 0.0f,
-        0.5f, 0.5f,
-        1.0f, 0.5f,
-        1.0f, 0.0f  
-      },
-    };
-    for(int index = 0; index < count; index++) {
-      float x = random.nextFloat() * screenWidth;
-      float y = random.nextFloat() * screenHeight;
-      GLTexture texture = textures[random.nextInt(textures.length)];
-      if (texture.id == 1) {
-        texture = texture.clone(atlas[random.nextInt(atlas.length)]);
-      }
-      
-      GLRectangle rectangle = new GLRectangle(x, y, 100f, 100f, program, texture);
-      rectangle.angle = random.nextInt(360);
-      rectangle.scale.x = random.nextFloat()*2;
-      rectangle.scale.y = rectangle.scale.x;
-      shapes.add(rectangle);
     }
   }
 
