@@ -214,10 +214,7 @@ public class World implements Runnable {
   public void addGameObject(GameObject obj) {
     objects.add(obj);
     if (state != WorldState.INITIALIZING) {
-      if (obj instanceof Cat) {
-        SoundFactory.sounds.get("cat").play();
-      }
-      else if (obj instanceof Mouse) {
+      if (obj instanceof Mouse) {
         SoundFactory.sounds.get("mouse").play();
       }
     }
@@ -392,6 +389,13 @@ public class World implements Runnable {
    */
   public Iterable<GameObject> getGameObjects() {
     return(objects != null ? objects : Collections.<GameObject>emptyList());
+  }
+
+  /**
+   * Plays the meow sound for the cat.
+   */
+  public void meow() {
+    SoundFactory.sounds.get("cat").play();
   }
 
   public void moveCatTo(float x, float y) {

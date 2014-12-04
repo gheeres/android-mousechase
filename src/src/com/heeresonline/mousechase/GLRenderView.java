@@ -60,6 +60,7 @@ public class GLRenderView extends GLSurfaceView {
     switch(action) {
       case MotionEvent.ACTION_DOWN:
       case MotionEvent.ACTION_POINTER_DOWN:
+        world.meow();
         world.moveCatTo(event.getX(pointerIndex), renderer.getHeight() - event.getY(pointerIndex));
         break;
       
