@@ -5,7 +5,11 @@ package com.heeresonline.mousechase.opengl;
  */
 class Triangle extends GLShape {
   public Triangle(int program) {
-    super(new float[] { 
+    this(0, program);
+  }
+  
+  public Triangle(int id, int program) {
+    super(id, new float[] { 
       10.0f, 200f, 0.0f,
       10.0f, 100f, 0.0f,
       100f, 100f, 0.0f,

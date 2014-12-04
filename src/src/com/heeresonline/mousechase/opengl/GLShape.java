@@ -11,19 +11,29 @@ import android.opengl.GLES20;
 public class GLShape extends GLObject {
   public static final String TAG = "GLShape";
   
+  public final int id;
   protected float[] vertices;
   protected short[] indices;
   protected GLTexture texture;
   protected int program;
   
   public GLShape(float[] vertices, short[] indices, int program) {
+    this(0, vertices, indices, program);
+  }
+
+  public GLShape(int id, float[] vertices, short[] indices, int program) {
+    this.id = id;
     this.vertices = vertices;
     this.indices = indices;
     this.program = program;
   }
 
   public GLShape(float[] vertices, short[] indices, int program, GLTexture texture) {
-    this(vertices, indices, program);
+    this(0, vertices, indices, program, texture);
+  }
+
+  public GLShape(int id, float[] vertices, short[] indices, int program, GLTexture texture) {
+    this(id, vertices, indices, program);
     this.texture = texture;
   }
 

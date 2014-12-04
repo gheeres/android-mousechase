@@ -19,11 +19,19 @@ public class GLRectangle extends GLShape {
   public float angle;
 
   public GLRectangle(float x, float y, float width, float height, int program) {
-    this(x, y, width, height, program, null);
+    this(0, x, y, width, height, program, null);
+  }
+
+  public GLRectangle(int id, float x, float y, float width, float height, int program) {
+    this(id, x, y, width, height, program, null);
   }
 
   public GLRectangle(float x, float y, float width, float height, int program, GLTexture texture) {
-    super(getVertices(x, y, width, height), defaultIndices, program, texture);
+    this(0, x, y, width, height, program, null);
+  }
+  
+  public GLRectangle(int id, float x, float y, float width, float height, int program, GLTexture texture) {
+    super(id, getVertices(x, y, width, height), defaultIndices, program, texture);
 
     this.origin.x = x;
     this.origin.y = y;
