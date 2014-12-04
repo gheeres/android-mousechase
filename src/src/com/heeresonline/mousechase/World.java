@@ -364,16 +364,16 @@ public class World implements Runnable {
   public void addMouse(int mice) {
     time[ELAPSED_SINCE_LAST_MOUSE] = 0;
 
-//    for(int index = 0; index < mice; index++) {
-//      Point entry = getRandomEntryPoint(0, 0, this.width, this.height);
-//      Mouse mouse = new Mouse(objects.size(), entry.x, entry.y, cat);
-//      mouse.speed = random.nextFloat() * cat.speed; // Vary speed of the mice.
-//      mouse.direction = cat.getDirectionTo(mouse.position.x, mouse.position.y);
-//
-//      count++;
-//      Log.d(TAG, String.format("Adding new mouse to screen at %5.1fx%5.1f with speed %5.2f heading %5.2f.", mouse.position.x, mouse.position.y, mouse.speed, mouse.direction));
-//      addGameObject(mouse);
-//    }
+    for(int index = 0; index < mice; index++) {
+      Point entry = getRandomEntryPoint(0, 0, this.width, this.height);
+      Mouse mouse = new Mouse(objects.size(), entry.x, entry.y, cat);
+      mouse.speed = random.nextFloat() * cat.speed; // Vary speed of the mice.
+      mouse.direction = cat.getDirectionTo(mouse.position.x, mouse.position.y);
+
+      count++;
+      Log.d(TAG, String.format("Adding new mouse to screen at %5.1fx%5.1f with speed %5.2f heading %5.2f.", mouse.position.x, mouse.position.y, mouse.speed, mouse.direction));
+      addGameObject(mouse);
+    }
   }
 
   /**
