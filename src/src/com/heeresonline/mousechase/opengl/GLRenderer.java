@@ -67,6 +67,25 @@ public class GLRenderer implements Renderer {
         rectangle.rotate(obj.direction);
         shapes.add(rectangle);
       }
+
+      @Override
+      public void removed(GameObject obj) {
+        boolean found = false;
+        for(Iterator<GLShape> shapeIterator = shapes.iterator(); (! found) && shapeIterator.hasNext(); ) {
+          GLShape shape = shapeIterator.next();
+          if ((shape != null) && (shape.id == obj.id)) {
+            Log.d(TAG, String.format("Removing GLRectangle with id %d at %5.2fx%5.2f.", 
+                                     shape.id, shape.origin.x, shape.origin.y));
+            shapes.remove(shape);
+          }
+        }
+      }
+
+      @Override
+      public void cleared() {
+        Log.d(TAG, "All GLRectangles cleared / removed.");
+        shapes.clear();
+      }
     });
     
     lastTime = System.currentTimeMillis();

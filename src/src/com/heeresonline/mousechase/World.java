@@ -196,6 +196,35 @@ public class World implements Runnable {
       }
     }
   }
+
+  /**
+   * Listener trigger for GameObjectChangeEvent handler when object is removed.
+   * @param obj The removed GameObject
+   */
+  private void onGameObjectsCleared() {
+    if ((listeners != null) && (! listeners.isEmpty())) {
+      Enumeration<GameObjectChangeEvent> e = listeners.elements();
+      while (e.hasMoreElements()) {
+        GameObjectChangeEvent listener = (GameObjectChangeEvent) e.nextElement();
+        listener.cleared();
+      }
+    }
+  }
+  
+  /**
+   * Listener trigger for GameObjectChangeEvent handler when object is removed.
+   * @param obj The removed GameObject
+   */
+  private void onGameObjectRemoved(GameObject obj) {
+    if (obj == null) return;
+    if ((listeners != null) && (! listeners.isEmpty())) {
+      Enumeration<GameObjectChangeEvent> e = listeners.elements();
+      while (e.hasMoreElements()) {
+        GameObjectChangeEvent listener = (GameObjectChangeEvent) e.nextElement();
+        listener.removed(obj);
+      }
+    }
+  }
   
   /**
    * Initializes the game world. 
@@ -205,8 +234,8 @@ public class World implements Runnable {
     for(int index = 0, length = time.length; index < length; index++) {
       time[index] = 0;
     }
-    objects.clear();
     count = 0;
+    clearGameObjects();
     
     cat = new Cat(objects.size(), width/2, height/2);
     cat.speed = 400.0f;
@@ -258,6 +287,23 @@ public class World implements Runnable {
     onGameObjectAdded(obj);
   }
 
+  /**
+   * Removes all game objects.
+   */
+  public void clearGameObjects() {
+    objects.clear();
+    onGameObjectsCleared();
+  }
+  
+  /**
+   * Removes the specified game object to the world.
+   * @param obj The GameObject to remove.
+   */
+  public void removeGameObject(GameObject obj) {
+    objects.remove(obj);
+    onGameObjectAdded(obj);
+  }
+  
   @Override
   public void run() {
     int sleepTime = 0;
