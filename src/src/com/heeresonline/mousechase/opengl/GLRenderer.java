@@ -10,6 +10,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import com.android.opengl.GLText;
+import com.heeresonline.mousechase.Barrier;
 import com.heeresonline.mousechase.Cat;
 import com.heeresonline.mousechase.GameObject;
 import com.heeresonline.mousechase.R;
@@ -123,8 +124,9 @@ public class GLRenderer implements Renderer {
     
     // Load our textures
     GLTextureFactory.addTexture("atlas", context.getAssets(), "textureatlas.png");
+    GLTextureFactory.addTexture("barrier", context.getAssets(), "barrier.png");
     GLTextureFactory.addTexture("cube", context.getAssets(), "cube.png");
-    GLTextureFactory.addTexture("icon", context.getResources(), R.drawable.ic_launcher);
+    GLTextureFactory.addTexture("mouse", context.getResources(), R.drawable.ic_launcher);
   }  
 
   /**
@@ -164,7 +166,7 @@ public class GLRenderer implements Renderer {
         glInfoText.begin(0.8f, 0.8f, 0.8f, 1.0f, matrix); 
         glInfoText.drawC("Touch screen to restart", screenWidth/2f, screenHeight/2f - glText.getHeight(), 0);
         glInfoText.end();
-      break;
+      //break;
       
       case RUNNING:
         int program = GLShaderFactory.programs.get("texture2D");
@@ -173,10 +175,11 @@ public class GLRenderer implements Renderer {
           GameObject obj = iterator.next();
           if (obj != null) {
             if (obj instanceof Cat) texture = GLTextureFactory.textures.get("cube");
-            else texture = GLTextureFactory.textures.get("icon");
+            else if (obj instanceof Barrier) texture = GLTextureFactory.textures.get("barrier");
+            else texture = GLTextureFactory.textures.get("mouse");
             //Log.d(TAG, String.format("Creating GameObject at %5.2fx%5.2f. Screen size: %5.2fx%5.2f", obj.position.x, obj.position.y, screenWidth, screenHeight));
             
-            GLRectangle rectangle = new GLRectangle(obj.position.x, obj.position.y, 35f, 35f, program, texture.clone());
+            GLRectangle rectangle = new GLRectangle(obj.position.x, obj.position.y, obj.size * 4.0f, obj.size * 4.0f, program, texture.clone());
             rectangle.angle = obj.direction;
             rectangle.draw(matrix);
           }

@@ -1,5 +1,6 @@
 package com.heeresonline.mousechase;
 
+import java.util.Iterator;
 import java.util.Random;
 
 import android.graphics.PointF;
@@ -59,6 +60,20 @@ public abstract class GameObject {
 
   /**
    * Get's the distance between the points.
+   * @param x1 The x position of the first position
+   * @param y1 The y position of the first position
+   * @param x2 The x position of the second position
+   * @param y2 The y position of the second position
+   * @return The distance between the positions.
+   */
+  public static float getDistance(float x1, float y1, float x2, float y2) {
+    float deltaX = x1 - x2;
+    float deltaY = y1 - y2;
+    return((float) Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2)));
+  }
+  
+  /**
+   * Get's the distance from the specified x,y coordinate.
    * @param x The x position
    * @param y The y position
    * @return The distance between the positions.
@@ -69,6 +84,84 @@ public abstract class GameObject {
     return((float) Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2)));
   }
   
+  /**
+   * Checks to see if the x,y coordinate collides with any of the specified game objects.
+   * @param x The x coordinate to inspect.
+   * @param y The y coordinate to inspect.
+   * @param size The size/radius of the item.
+   * @param objects The game objects.
+   * @return True if collision, false if otherwise
+   */
+  public static boolean collidesWith(float x, float y, float size, GameObject obj) {
+    if (obj == null) return(false);
+
+    float distance = getDistance(x, y, obj.position.x, obj.position.y);
+    return(((distance - obj.size - size) <= 0));
+  }
+
+  /**
+   * Checks to see if the x,y coordinate collides with the specified game object.
+   * @param size The size/radius of the item.
+   * @param objects The game objects.
+   * @return True if collision, false if otherwise
+   */
+  public boolean collidesWith(float x, float y, GameObject obj) {
+    return(collidesWith(x, y, size, obj));
+  }
+
+  /**
+   * Checks to see if the current position collides with any of the specified game object.
+   * @param obj The game objects.
+   * @return True if collision, false if otherwise
+   */
+  public boolean collidesWith(GameObject obj) {
+    return(collidesWith(position.x, position.y, size, obj));
+  }
+
+  /**
+   * Checks to see if the object collides with any of the specified game objects.
+   * @param objects The game objects.
+   * @param filter The filter / type of game object to check for.
+   * @return The game object collided with
+   */
+  public GameObject collidesWith(Iterable<GameObject> objects, Class<?> filter) {
+    return(collidesWith(position.x, position.y, size, objects, filter));
+  }
+
+  /**
+   * Checks to see if the object collides with any of the specified game objects.
+   * @param x The x coordinate to inspect.
+   * @param y The y coordinate to inspect.
+   * @param objects The game objects.
+   * @param filter The filter / type of game object to check for.
+   * @return The game object collided with
+   */
+  public GameObject collidesWith(float x, float y,Iterable<GameObject> objects, Class<?> filter) {
+    return(collidesWith(x, y, size, objects, filter));
+  }
+
+  /**
+   * Checks to see if the object collides with any of the specified game objects.
+   * @param x The x coordinate to inspect.
+   * @param y The y coordinate to inspect.
+   * @param size The size/radius of the item.
+   * @param objects The game objects.
+   * @param filter The filter / type of game object to check for.
+   * @return The game object collided with
+   */
+  public static GameObject collidesWith(float x, float y, float size, Iterable<GameObject> objects, Class<?> filter) {
+    Iterator<GameObject> iterator = objects.iterator();
+    while (iterator.hasNext()) {
+      GameObject obj = iterator.next();
+      if (obj.getClass() == filter) {
+        if (collidesWith(x, y, size, obj)) {
+          return(obj);
+        }
+      }
+    }
+    return(null);
+  }
+
   /**
    * Gets the next step position based on the speed and direction.
    * @param deltaTime The time elapsed in milliseconds.
@@ -101,6 +194,7 @@ public abstract class GameObject {
   /**
    * Update the game object position.
    * @param deltaTime The elapsed time in milliseconds since the last step.
+   * @param objects The existing game objects.
    */
-  public abstract void step(float deltaTime);
+  public abstract void step(float deltaTime, Iterable<GameObject> objects);
 }

@@ -1,5 +1,7 @@
 package com.heeresonline.mousechase;
 
+import java.util.Iterator;
+
 import android.graphics.PointF;
 import android.util.Log;
 
@@ -38,13 +40,15 @@ public class Cat extends GameObject {
   }
   
   @Override
-  public void step(float deltaTime) {
+  public void step(float deltaTime, Iterable<GameObject> objects) {
     if ((Math.abs(destination.x - position.x) > POSITION_PRECISION) || 
         (Math.abs(destination.y - position.y) > POSITION_PRECISION)) {
       getNextPosition(deltaTime, destination.x, destination.y, next);
 
-      position.x = next.x;
-      position.y = next.y;
+      if (collidesWith(next.x, next.y, objects, Barrier.class) == null) {
+        position.x = next.x;
+        position.y = next.y;
+      }
       direction = getDirectionTo(destination.x, destination.y);
     }
   }

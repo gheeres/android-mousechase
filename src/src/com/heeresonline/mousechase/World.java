@@ -15,6 +15,7 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.graphics.Point;
+import android.graphics.RectF;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnPreparedListener;
@@ -30,6 +31,7 @@ public class World implements Runnable {
   
   private final static int DEFAULT_WIDTH = 1024;
   private final static int DEFAULT_HEIGHT = 768;
+  private final static int BARRIER_COUNT = 10;
   
   private final static int MAX_SOUND_STREAMS = 8;
 
@@ -211,8 +213,38 @@ public class World implements Runnable {
     cat = new Cat(0, width/2, height/2);
     cat.speed = (width / 2.0f);
     addGameObject(cat);
+
+    //generateRandomBarriers(BARRIER_COUNT);
   }
 
+  /**
+   * Generate random barriers.
+   * @param count The number of barriers to generate.
+   */
+  public void generateRandomBarriers(int count) {
+    Random random = new Random();
+    
+    float centerX = width/2.0f;
+    float centerY = height/2.0f;
+    float size = cat.size * 20;
+    RectF exclusion = new RectF(centerX - size, centerY - size, centerX + size, centerY + size);
+    Log.d(TAG, String.format("EXCLUDED BARRIER ZONE: x1:%5.2f,y1:%5.2f x2:%5.2f,y2:%5.2f", exclusion.left, exclusion.bottom, exclusion.top, exclusion.right));
+    
+    for(int index = 0; index < count; index++) {
+      float x, y;
+      // Don't allow barrier near center of the screen
+      do {
+        x = random.nextFloat() * width;
+        y = random.nextFloat() * height;
+      } while (exclusion.contains(x, y));
+
+      Barrier barrier = new Barrier(count+1, x, y);
+      barrier.size = Math.max(cat.size * 3 * random.nextFloat(), cat.size);
+      Log.d(TAG, String.format("Adding barrier at size %5.2f at %5.2fx%5.2f", barrier.size, barrier.position.x, barrier.position.y));
+      addGameObject(barrier);
+    }
+  }
+  
   /**
    * Adds the specified game object to the world.
    * @param obj The GameObject to add.
@@ -366,13 +398,13 @@ public class World implements Runnable {
     for(Iterator<GameObject> iterator = getGameObjects().iterator(); iterator.hasNext(); ) {
       GameObject obj = iterator.next();
       if (obj != null) {
-        obj.step(deltaTime);
+        obj.step(deltaTime, getGameObjects());
         
         // Collision check / Game Over?
-        if (! (obj instanceof Cat)) {
+        if (obj instanceof Mouse) {
           float distance = cat.getDistanceFrom(obj.position.x, obj.position.y);
           if ((distance - obj.size - cat.size) < proximity) proximity = distance - obj.size - cat.size;
-          
+
           if (cat.intersectsWith(obj.position.x, obj.position.y, obj.size)){
             mediaPlayer.stop();
             SoundFactory.sounds.get("gameover").play();
