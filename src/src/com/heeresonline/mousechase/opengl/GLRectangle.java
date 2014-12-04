@@ -11,8 +11,8 @@ public class GLRectangle extends GLShape {
     0, 1, 2, 0, 2, 3 
   };
   
-  public float width;
-  public float height;
+  protected float width;
+  protected float height;
 
   public GLRectangle(float x, float y, float width, float height, int program) {
     this(0, x, y, width, height, program, null);
@@ -102,7 +102,7 @@ public class GLRectangle extends GLShape {
    * @return The width of the item.
    */
   public float width() {
-    return(height);
+    return(width);
   }
   
   @Override
