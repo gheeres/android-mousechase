@@ -150,6 +150,7 @@ public class World implements Runnable {
   }
   
   public void start() {
+    if (state == WorldState.GAMEOVER) state = WorldState.RUNNING;
     resume();
     pool.autoResume();
   }
@@ -200,7 +201,12 @@ public class World implements Runnable {
    * Initializes the game world. 
    */
   public void initialize() {
+    // Reset the timers
+    for(int index = 0, length = time.length; index < length; index++) {
+      time[index] = 0;
+    }
     objects.clear();
+    count = 0;
     
     cat = new Cat(0, width/2, height/2);
     cat.speed = (width / 2.0f);
@@ -237,12 +243,11 @@ public class World implements Runnable {
     }
     Log.d(TAG, "World state is READY. Switching to RUNNING mode.");
     state = WorldState.RUNNING;
-    SoundFactory.sounds.get("cat").play();
 
     while (isRunning) {
       int framesSkipped = 0;
       float deltaTime = (System.currentTimeMillis() - startTime);
-      time[ELAPSED_GAME_TIME] += deltaTime;
+      if (state == WorldState.RUNNING) time[ELAPSED_GAME_TIME] += deltaTime;
       startTime = System.currentTimeMillis();
 
       step(deltaTime);
@@ -349,7 +354,8 @@ public class World implements Runnable {
     
     //Log.d(TAG, String.format("Elapsed: %12.8f, Diff: %9.8f", (int)elapsed / 1000, (((int) elapsed / 1000) % MOUSE_INTERVAL)));
     time[ELAPSED_SINCE_LAST_MOUSE] += deltaTime;
-    if (time[ELAPSED_SINCE_LAST_MOUSE] > MOUSE_INTERVAL) {
+    if ((time[ELAPSED_SINCE_LAST_MOUSE] > MOUSE_INTERVAL) || 
+        ((getCount() == 0) && (time[ELAPSED_GAME_TIME] > 1000))) {
       time[ELAPSED_SINCE_LAST_MOUSE] = time[ELAPSED_SINCE_LAST_MOUSE] - MOUSE_INTERVAL;
 
       int mice = (int) Math.min(getCount() / 3, 6);
@@ -395,9 +401,18 @@ public class World implements Runnable {
    * Plays the meow sound for the cat.
    */
   public void meow() {
-    SoundFactory.sounds.get("cat").play();
+    if (state == WorldState.RUNNING) {
+      SoundFactory.sounds.get("cat").play();
+    }
   }
 
+  /**
+   * Gets the time in millisecond elapsed since game start.
+   * @return The elapsed milliseconds since start. 
+   */
+  public float getElapsedTime() {
+    return(time[ELAPSED_GAME_TIME]);
+  }
   public void moveCatTo(float x, float y) {
     cat.setDestination(x,  y);
   }
@@ -416,5 +431,13 @@ public class World implements Runnable {
    */
   public WorldState getState() {
     return(state);
+  }
+
+  /**
+   * Sets the current world state.
+   * @param state The state of the world
+   */
+  public void setState(WorldState state) {
+    this.state = state;
   }
 }

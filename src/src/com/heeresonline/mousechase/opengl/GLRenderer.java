@@ -29,6 +29,9 @@ public class GLRenderer implements Renderer {
   private World world;
 
   private GLText glText;
+  private GLText glInfoText;
+  private GLText glHudText;
+  private GLText glHudSmallText;
   private GLText glDebugText;
   
   private final float[] projectionMatrix = new float[16];
@@ -78,6 +81,12 @@ public class GLRenderer implements Renderer {
     glDebugText.load("fonts/Roboto-Regular.ttf", (int) (screenHeight * 0.015f), 2, 2);  // Create Font (Height: 24 Pixels / X+Y Padding 2 Pixels)
     glText = new GLText(assets);
     glText.load("fonts/QuartzMS.ttf", (int) (screenHeight * 0.05f), 8, 8);  // Create Font (Height: 72 Pixels / X+Y Padding 2 Pixels)
+    glInfoText = new GLText(assets);
+    glInfoText.load("fonts/QuartzMS.ttf", (int) (screenHeight * 0.03f), 8, 8);  // Create Font (Height: 72 Pixels / X+Y Padding 2 Pixels)
+    glHudText = new GLText(assets);
+    glHudText.load("fonts/MotorwerkOblique.ttf", (int) (screenHeight * 0.05f), 8, 8);  // Create Font (Height: 72 Pixels / X+Y Padding 2 Pixels)
+    glHudSmallText = new GLText(assets);
+    glHudSmallText.load("fonts/MotorwerkOblique.ttf", (int) (screenHeight * 0.0375f), 8, 8);  // Create Font (Height: 72 Pixels / X+Y Padding 2 Pixels)
     
     // Setup our screen width and height for normal sprite translation.
     Matrix.orthoM(projectionMatrix, 0, 0f, screenWidth, 0.0f, screenHeight, 0, 50);
@@ -151,6 +160,10 @@ public class GLRenderer implements Renderer {
         glText.begin(1.0f, 1.0f, 1.0f, 1.0f, matrix); 
         glText.drawC("GAME OVER", screenWidth/2f, screenHeight/2f, 0);
         glText.end();
+
+        glInfoText.begin(0.8f, 0.8f, 0.8f, 1.0f, matrix); 
+        glInfoText.drawC("Touch screen to restart", screenWidth/2f, screenHeight/2f - glText.getHeight(), 0);
+        glInfoText.end();
       break;
       
       case RUNNING:
@@ -181,7 +194,52 @@ public class GLRenderer implements Renderer {
       break;
     }
     
+    renderMouseCount(matrix, world.getCount());
+    renderElapsedTime(matrix, world.getElapsedTime());
     renderFPS(matrix, deltaTime / 1000);
+  }
+  
+  /**
+   * Renders the total number of mice on the screen.
+   * @param matrix The matrix to use for rendering.
+   * @param count The number of mice on the screen.
+   */
+  protected void renderMouseCount(float[] matrix, int count) {
+    String label ="Mice: ";
+    float width = glHudText.getLength(label);
+    glHudText.begin(1.0f, 0.0f, 0.0f, 1.0f, matrix); 
+    glHudText.draw(label, 0.0f, screenHeight - glHudText.getHeight(), 0.0f);
+    glHudText.end();
+
+    String value = String.format("%03d", count);
+    glHudText.begin(1.0f, 0.94f, 0.0f, 1.0f, matrix); 
+    glHudText.draw(value, width, screenHeight - glHudText.getHeight(), 0.0f);
+    glHudText.end();
+}
+
+  /**
+   * Renders the elapsed time since the game started.
+   * @param matrix The matrix to use for rendering.
+   * @param elapsedTime The number of milliseconds elapsed since game start.
+   */
+  protected void renderElapsedTime(float[] matrix, float elapsedTime) {
+    String elapsedMilliSeconds = String.format(".%03.0f", elapsedTime % 1000);
+    float width = glHudText.getLength(elapsedMilliSeconds);
+    glHudSmallText.begin(1.0f, 0.94f, 0.0f, 1.0f, matrix); 
+    glHudSmallText.draw(elapsedMilliSeconds, screenWidth - width, screenHeight - glHudText.getHeight(), 0.0f);
+    glHudSmallText.end();
+
+    String elapsedSeconds = String.format("%03.0f", elapsedTime / 1000);
+    width = width + glHudText.getLength(elapsedSeconds);
+    glHudText.begin(1.0f, 0.94f, 0.0f, 1.0f, matrix); 
+    glHudText.draw(elapsedSeconds, screenWidth - width, screenHeight - glHudText.getHeight(), 0.0f);
+    glHudText.end();
+
+    String label = "Time: ";
+    width = width + glHudText.getLength(label);
+    glHudText.begin(1.0f, 0.0f, 0.0f, 1.0f, matrix); 
+    glHudText.draw(label, screenWidth - width, screenHeight - glHudText.getHeight(), 0.0f);
+    glHudText.end();
   }
   
   /**
