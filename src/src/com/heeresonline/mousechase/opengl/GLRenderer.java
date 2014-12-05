@@ -13,7 +13,6 @@ import com.heeresonline.mousechase.Barrier;
 import com.heeresonline.mousechase.Cat;
 import com.heeresonline.mousechase.GameObject;
 import com.heeresonline.mousechase.GameObjectChangeEvent;
-import com.heeresonline.mousechase.Mouse;
 import com.heeresonline.mousechase.R;
 import com.heeresonline.mousechase.World;
 
@@ -65,7 +64,7 @@ public class GLRenderer implements Renderer {
                                   obj.size, obj.position.x, obj.position.y, 
                                   obj.direction, texture.id, screenWidth, screenHeight));
         GLRectangle rectangle = new GLRectangle(obj.id, obj.position.x, obj.position.y, obj.size, obj.size, program, texture.clone());
-        rectangle.rotate(((obj instanceof Mouse) ? 180 : 360) - obj.direction);
+        rectangle.rotate(360 - obj.direction);
         shapes.add(rectangle);
       }
 
@@ -220,7 +219,7 @@ public class GLRenderer implements Renderer {
                 found = true;
 
                 shape.translate(obj.position.x, obj.position.y);
-                shape.rotate(((obj instanceof Mouse) ? 180 : 360) - obj.direction);
+                shape.rotate(360 - obj.direction);
                 shape.draw(matrix);
               }
             }
