@@ -29,16 +29,18 @@ public class World implements Runnable {
   
   private final static int DEFAULT_WIDTH = 1024;
   private final static int DEFAULT_HEIGHT = 768;
-  private final static int BARRIER_COUNT = 10;
-  
-  private final static int MAX_SOUND_STREAMS = 8;
 
   private final static int MAX_FPS = 40; //desired fps   
   private final static int MAX_FRAME_SKIPS = 5; // maximum number of frames to be skipped    
   private final static int FRAME_PERIOD = 1000 / MAX_FPS; // the frame period  
 
+  private final static int MAX_SOUND_STREAMS = 4;
+
   private final static int MOUSE_INTERVAL = 6000; // The number of milliseconds when a new mouse is introduced
-  
+  private final static int BARRIER_COUNT = 10;
+  private final static int BARRIER_EXCLUSION_ZONE_SCALE = 4; // The exclusion zone around the game start where barriers are prevented from being randomly created.
+  private final static int MAX_BARRIER_SCALE = 5; // Barriers are randomly created with a size up to [cat] size multipled by this scaling factor.
+
   private int width = 1024;
   private int height = 768;
 
@@ -46,6 +48,7 @@ public class World implements Runnable {
   private final static int ELAPSED_SINCE_LAST_MOUSE = 1;
   private float[] time = new float[2];
 
+  private boolean isInitialized = false;
   private boolean isRunning = false;
   private final Random random = new Random();
   private final List<GameObject> objects = new CopyOnWriteArrayList<GameObject>();
@@ -150,10 +153,7 @@ public class World implements Runnable {
   }
   
   public void start() {
-    if (state == WorldState.GAMEOVER) {
-      state = WorldState.RUNNING;
-      initializeMediaPlayer(context.getAssets());
-    }
+    if (state == WorldState.GAMEOVER) state = WorldState.RUNNING;
     resume();
     pool.autoResume();
   }
@@ -163,10 +163,14 @@ public class World implements Runnable {
     pool.autoPause();
     state = WorldState.PAUSED;
     Log.d(TAG, String.format("Pausing world loop."));
+    
+    mediaPlayer.stop();
   }
   
   public void resume() {
     Log.d(TAG, String.format("Resuming world loop."));
+
+    initializeMediaPlayer(context.getAssets());
     isRunning = true;
     if (loop == null) {
       loop = new Thread(this);
@@ -233,6 +237,8 @@ public class World implements Runnable {
    * Initializes the game world. 
    */
   public void initialize() {
+    isInitialized = false;
+
     // Reset the timers
     for(int index = 0, length = time.length; index < length; index++) {
       time[index] = 0;
@@ -244,6 +250,7 @@ public class World implements Runnable {
     addGameObject(cat);
 
     generateRandomBarriers(BARRIER_COUNT);
+    isInitialized = true;
   }
 
   /**
@@ -255,7 +262,7 @@ public class World implements Runnable {
     
     float centerX = width/2.0f;
     float centerY = height/2.0f;
-    float size = cat.size * 10;
+    float size = cat.size * BARRIER_EXCLUSION_ZONE_SCALE;
     RectF exclusion = new RectF(centerX - size, centerY - size, centerX + size, centerY + size);
     Log.d(TAG, String.format("EXCLUDED BARRIER ZONE: x1:%5.2f,y1:%5.2f x2:%5.2f,y2:%5.2f", exclusion.left, exclusion.bottom, exclusion.top, exclusion.right));
     
@@ -268,7 +275,7 @@ public class World implements Runnable {
       } while (exclusion.contains(x, y));
 
       Barrier barrier = new Barrier(objects.size(), x, y);
-      barrier.size = Math.max(cat.size * 6 * random.nextFloat(), cat.size);
+      barrier.size = Math.max(cat.size * MAX_BARRIER_SCALE * random.nextFloat(), cat.size);
       barrier.paddingPercentage = 0.0f;
       Log.d(TAG, String.format("Adding barrier with size %5.2f @ %5.2fx%5.2f", barrier.size, barrier.position.x, barrier.position.y));
       addGameObject(barrier);
@@ -314,7 +321,8 @@ public class World implements Runnable {
     isRunning = true;
 
     // Don't start the game loop until we're ready...
-    while ((state != WorldState.RUNNING) && (state != WorldState.READY)) {
+    while ((! isInitialized) || 
+           ((state != WorldState.RUNNING) && (state != WorldState.READY))) {
       try {
         Thread.sleep(10);
       } catch (InterruptedException e) {
